@@ -885,7 +885,11 @@ static int lualdap_createmeta (lua_State *L) {
 		return 0;
 
 	/* define methods */
+#if LUA_VERSION_NUM >= 501
+	luaL_register (L, NULL, methods);
+#else
 	luaL_openlib (L, NULL, methods, 0);
+#endif
 
 	/* define metamethods */
 	lua_pushliteral (L, "__gc");
@@ -991,7 +995,11 @@ int luaopen_lualdap (lua_State *L) {
 	};
 
 	lualdap_createmeta (L);
+#if LUA_VERSION_NUM >= 501
+	luaL_register (L, LUALDAP_TABLENAME, lualdap);
+#else
 	luaL_openlib (L, LUALDAP_TABLENAME, lualdap, 0);
+#endif
 	set_info (L);
 
 	return 1;
