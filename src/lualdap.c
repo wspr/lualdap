@@ -473,7 +473,11 @@ static int lualdap_close (lua_State *L) {
 	luaL_argcheck(L, conn!=NULL, 1, LUALDAP_PREFIX"LDAP connection expected");
 	if (conn->ld == NULL) /* already closed */
 		return 0;
+#if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
+	ldap_unbind_ext (conn->ld, NULL, NULL);
+#else
 	ldap_unbind (conn->ld);
+#endif
 	conn->ld = NULL;
 	lua_pushnumber (L, 1);
 	return 1;
@@ -941,13 +945,27 @@ static int lualdap_open_simple (lua_State *L) {
 	const char *password = luaL_optstring (L, 3, NULL);
 	int use_tls = lua_toboolean (L, 4);
 	conn_data *conn = (conn_data *)lua_newuserdata (L, sizeof(conn_data));
+#if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
+	struct berval cred = { 0, NULL };
+	char *host_with_schema = NULL;
+#endif
 	int err;
 
 	/* Initialize */
 	lualdap_setmeta (L, LUALDAP_CONNECTION_METATABLE);
 	conn->version = 0;
+#if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
+	host_with_schema = malloc(strlen(host) + 8);
+	strcpy(host_with_schema, "ldap://");
+	strcat(host_with_schema, host);
+	err = ldap_initialize(&conn->ld, host_with_schema);
+	free(host_with_schema);
+	host_with_schema = NULL;
+	if (err != LDAP_SUCCESS)
+#else
 	conn->ld = ldap_init (host, LDAP_PORT);
 	if (conn->ld == NULL)
+#endif
 		return faildirect(L,LUALDAP_PREFIX"Error connecting to server");
 	/* Set protocol version */
 	conn->version = LDAP_VERSION3;
@@ -961,7 +979,16 @@ static int lualdap_open_simple (lua_State *L) {
 			return faildirect (L, ldap_err2string (rc));
 	}
 	/* Bind to a server */
+#if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
+	cred.bv_len = strlen(password);
+	cred.bv_val = malloc(cred.bv_len+1);
+	strcpy(cred.bv_val, password);
+	err = ldap_sasl_bind_s (conn->ld, who, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
+	free(cred.bv_val);
+	memset(cred, 0, sizeof(cred));
+#else
 	err = ldap_bind_s (conn->ld, who, password, LDAP_AUTH_SIMPLE);
+#endif
 	if (err != LDAP_SUCCESS)
 		return faildirect (L, ldap_err2string (err));
 
