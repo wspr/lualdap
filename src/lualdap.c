@@ -436,10 +436,14 @@ static int result_message (lua_State *L) {
 			default:
 				lua_pushnil (L);
 				lua_pushliteral (L, LUALDAP_PREFIX);
-				lua_pushstring (L, msg);
-				lua_pushliteral (L, " ");
 				lua_pushstring (L, ldap_err2string(err));
-				lua_concat (L, 4);
+				lua_concat (L, 2);
+				if (msg != NULL) {
+					lua_pushliteral (L, " (");
+					lua_pushstring (L, msg);
+					lua_pushliteral (L, ")");
+					lua_concat (L, 4);
+				}
 				ret = 2;
 		}
 		ldap_memfree (mdn);
