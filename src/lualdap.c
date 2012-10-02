@@ -695,6 +695,8 @@ static int next_message (lua_State *L) {
 	int rc;
 	int ret;
 
+	luaL_checktype(L, 1, LUA_TTABLE);
+
 	lua_rawgeti (L, LUA_REGISTRYINDEX, search->conn);
 	conn = (conn_data *)lua_touserdata (L, -1); /* get connection */
 
@@ -841,7 +843,8 @@ static int lualdap_search (lua_State *L) {
 
 	create_search (L, 1, msgid);
 	lua_pushcclosure (L, next_message, 1);
-	return 1;
+	lua_pushvalue(L, 2);
+	return 2;
 }
 
 
