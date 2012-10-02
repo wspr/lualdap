@@ -989,7 +989,7 @@ static int lualdap_open_simple (lua_State *L) {
 	strcpy(cred.bv_val, password);
 	err = ldap_sasl_bind_s (conn->ld, who, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
 	free(cred.bv_val);
-	memset(cred, 0, sizeof(cred));
+	memset(&cred, 0, sizeof(cred));
 #else
 	err = ldap_bind_s (conn->ld, who, password, LDAP_AUTH_SIMPLE);
 #endif
