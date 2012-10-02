@@ -19,10 +19,14 @@
 #include "ldap.h"
 #endif
 
-#include "lua.h"
-#include "lauxlib.h"
-#if ! defined (LUA_VERSION_NUM) || LUA_VERSION_NUM < 501
-#include "compat-5.1.h"
+#include <lua.h>
+#include <lauxlib.h>
+
+#if LUA_VERSION_NUM < 502
+/* lua_rawlen: Not entirely correct, but should work anyway */
+#  define lua_rawlen lua_objlen
+#  define luaL_newlib(L,l) (lua_newtable(L), luaL_register(L,NULL,l))
+#  define luaL_setfuncs(L,l,n) (assert(n==0), luaL_register(L,NULL,l))
 #endif
 
 #ifdef WINLDAPAPI
@@ -243,7 +247,7 @@ static BerValue *A_setbval (lua_State *L, attrs_data *a, const char *n) {
 		value_error (L, n);
 		return NULL;
 	}
-	a->bvals[a->bi].bv_len = lua_strlen (L, -1);
+	a->bvals[a->bi].bv_len = lua_rawlen (L, -1);
 	a->bvals[a->bi].bv_val = (char *)lua_tostring (L, -1);
 	a->bi++;
 	return ret;
@@ -296,7 +300,7 @@ static BerValue **A_tab2val (lua_State *L, attrs_data *a, const char *name) {
 		A_setval (L, a, name);
 	else if (lua_istable (L, tab)) { /* list of strings */
 		int i;
-		int n = luaL_getn (L, tab);
+		int n = lua_rawlen (L, tab);
 		for (i = 1; i <= n; i++) {
 			lua_rawgeti (L, tab, i); /* push table element */
 			A_setval (L, a, name);
@@ -368,7 +372,7 @@ static int table2strarray (lua_State *L, int tab, char *array[], int limit) {
 		array[1] = NULL;
 	} else if (lua_istable (L, tab)) {
 		int i;
-		int n = luaL_getn (L, tab);
+		int n = lua_rawlen (L, tab);
 		if (limit < (n+1))
 			return luaL_error (L, LUALDAP_PREFIX"too many arguments");
 		for (i = 0; i < n; i++) {
@@ -524,7 +528,7 @@ static int lualdap_compare (lua_State *L) {
 	BerValue bvalue;
 	ldap_int_t rc, msgid;
 	bvalue.bv_val = (char *)luaL_checkstring (L, 4);
-	bvalue.bv_len = lua_strlen (L, 4);
+	bvalue.bv_len = lua_rawlen (L, 4);
 	rc = ldap_compare_ext (conn->ld, dn, attr, &bvalue, NULL, NULL, &msgid);
 	return create_future (L, rc, 1, msgid, LDAP_RES_COMPARE);
 }
@@ -878,7 +882,7 @@ static int lualdap_search_tostring (lua_State *L) {
 ** Create a metatable.
 */
 static int lualdap_createmeta (lua_State *L) {
-	const luaL_reg methods[] = {
+	const luaL_Reg methods[] = {
 		{"close", lualdap_close},
 		{"add", lualdap_add},
 		{"compare", lualdap_compare},
@@ -893,11 +897,7 @@ static int lualdap_createmeta (lua_State *L) {
 		return 0;
 
 	/* define methods */
-#if LUA_VERSION_NUM >= 501
-	luaL_register (L, NULL, methods);
-#else
-	luaL_openlib (L, NULL, methods, 0);
-#endif
+	luaL_setfuncs(L, methods, 0);
 
 	/* define metamethods */
 	lua_pushliteral (L, "__gc");
@@ -1020,17 +1020,15 @@ static void set_info (lua_State *L) {
 ** Create ldap table and register the open method.
 */
 int luaopen_lualdap (lua_State *L) {
-	struct luaL_reg lualdap[] = {
+	struct luaL_Reg lualdap[] = {
 		{"open_simple", lualdap_open_simple},
 		{NULL, NULL},
 	};
 
 	lualdap_createmeta (L);
-#if LUA_VERSION_NUM >= 501
-	luaL_register (L, LUALDAP_TABLENAME, lualdap);
-#else
-	luaL_openlib (L, LUALDAP_TABLENAME, lualdap, 0);
-#endif
+	luaL_newlib(L, lualdap);
+	lua_pushvalue(L, -1);
+	lua_setglobal(L, LUALDAP_TABLENAME);
 	set_info (L);
 
 	return 1;
