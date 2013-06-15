@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #ifdef WIN32
 #include <Winsock2.h>
