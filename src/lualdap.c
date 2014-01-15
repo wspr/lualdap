@@ -17,6 +17,7 @@
 #ifdef WINLDAP
 #include "open2winldap.h"
 #else
+#define LDAP_DEPRECATED 1
 #include "ldap.h"
 #endif
 
