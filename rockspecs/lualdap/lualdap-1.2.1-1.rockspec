@@ -1,22 +1,22 @@
 package="lualdap"
-version="1.2.0-1"
+version="1.2.1-1"
 source = {
-   url = "https://github.com/jprjr/lualdap/archive/v1.2.0.tar.gz",
-   dir = "lualdap-1.2.0",
+   url = "https://github.com/bdellegrazie/lualdap/archive/v1.2.1.tar.gz",
+   dir = "lualdap-1.2.1",
 }
 description = {
    summary = "Simple interface from Lua to an LDAP Client",
    detailed = [[
       Simple interface from Lua to an LDAP client.
    ]],
-   homepage = "https://github.com/jprjr/lualdap",
+   homepage = "https://github.com/bdellegrazie/lualdap",
    license = "MIT"
 }
 dependencies = {
    "lua >= 5.1, < 5.3"
 }
 external_dependencies = {
-   LDAP = {
+   LIBLDAP = {
       header = "ldap.h",
       library = "ldap",
    }
@@ -26,8 +26,8 @@ build = {
    modules = {
       lualdap = {
          sources = "src/lualdap.c",
-         libdirs = "$(LDAP_LIBDIR)",
-         incdirs = "$(LDAP_INCDIR)",
+         libdirs = "$(LIBLDAP_LIBDIR)",
+         incdirs = "$(LIBLDAP_INCDIR)",
          libraries = "ldap",
       },
    }
