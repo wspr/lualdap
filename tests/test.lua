@@ -1,4 +1,4 @@
-#!/usr/local/bin/lua5.1
+#!/usr/bin/env lua5.1
 ---------------------------------------------------------------------
 -- LuaLDAP test file.
 -- This test will create a copy of an existing entry on the
