@@ -472,7 +472,6 @@ static int create_future (lua_State *L, ldap_int_t rc, int conn, ldap_int_t msgi
 	return 1;
 }
 
-
 /*
 ** Unbind from the directory.
 ** @param #1 LDAP connection.
@@ -490,6 +489,28 @@ static int lualdap_close (lua_State *L) {
 #endif
 	conn->ld = NULL;
 	lua_pushnumber (L, 1);
+	return 1;
+}
+
+
+/*
+** Bind to the directory.
+** @param #1 LDAP connection.
+** @param #2 String with username.
+** @param #3 String with password.
+** @return Boolean.
+*/
+static int lualdap_bind_simple (lua_State *L) {
+	conn_data *conn = getconnection (L);
+	ldap_pchar_t who = (ldap_pchar_t) luaL_checkstring (L, 2);
+	const char *password = luaL_checkstring (L, 3);
+	int err;
+	
+	err = ldap_simple_bind_s (conn->ld, who, password);
+	if (err != LDAP_SUCCESS)
+		return faildirect (L, ldap_err2string (err));
+	
+	lua_pushboolean (L, 1);
 	return 1;
 }
 
@@ -889,6 +910,7 @@ static int lualdap_search_tostring (lua_State *L) {
 static int lualdap_createmeta (lua_State *L) {
 	const luaL_Reg methods[] = {
 		{"close", lualdap_close},
+		{"bind_simple", lualdap_bind_simple},
 		{"add", lualdap_add},
 		{"compare", lualdap_compare},
 		{"delete", lualdap_delete},
@@ -939,6 +961,34 @@ static int lualdap_createmeta (lua_State *L) {
 	return 0;
 }
 
+
+/*
+** Open and initialize a connection to a server (without binding).
+** @param #1 String with URI.
+** @return #1 Userdata with connection structure.
+*/
+static int lualdap_initialize (lua_State *L) {
+	ldap_pchar_t uri = (ldap_pchar_t) luaL_checkstring (L, 1);
+	conn_data *conn = (conn_data *)lua_newuserdata (L, sizeof(conn_data));
+	int err;
+	int lev=7;
+
+	/* Initialize */
+	lualdap_setmeta (L, LUALDAP_CONNECTION_METATABLE);
+	conn->version = 0;
+	err = ldap_initialize (&conn->ld, uri);
+	if (err != LDAP_SUCCESS)
+		return faildirect(L, ldap_err2string(err));
+	
+	/* Set protocol version */
+	conn->version = LDAP_VERSION3;
+	if (ldap_set_option (conn->ld, LDAP_OPT_PROTOCOL_VERSION, &conn->version)
+		!= LDAP_OPT_SUCCESS)
+		return faildirect(L, LUALDAP_PREFIX"Error setting LDAP version");
+	ldap_set_option(conn->ld, LDAP_OPT_DEBUG_LEVEL, &lev);
+
+	return 1;
+}
 
 /*
 ** Open and initialize a connection to a server.
@@ -1026,6 +1076,7 @@ static void set_info (lua_State *L) {
 */
 int luaopen_lualdap (lua_State *L) {
 	struct luaL_Reg lualdap[] = {
+		{"initialize", lualdap_initialize},
 		{"open_simple", lualdap_open_simple},
 		{NULL, NULL},
 	};
