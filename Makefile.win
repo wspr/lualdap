@@ -1,5 +1,5 @@
 T= lualdap
-V= 1.1.0
+V= 1.2.2
 
 include config.win
 
