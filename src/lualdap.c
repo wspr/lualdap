@@ -1013,7 +1013,7 @@ static int lualdap_open_simple (lua_State *L) {
 	int use_tls = lua_toboolean (L, 4);
 	conn_data *conn = (conn_data *)lua_newuserdata (L, sizeof(conn_data));
 #if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
-	struct berval cred = { 0, NULL };
+	struct berval *cred = NULL;
 	char *host_with_schema = NULL;
 #endif
 	int err;
@@ -1047,12 +1047,9 @@ static int lualdap_open_simple (lua_State *L) {
 	}
 	/* Bind to a server */
 #if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
-	cred.bv_len = strlen(password);
-	cred.bv_val = malloc(cred.bv_len+1);
-	strcpy(cred.bv_val, password);
-	err = ldap_sasl_bind_s (conn->ld, who, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
-	free(cred.bv_val);
-	memset(&cred, 0, sizeof(cred));
+	cred = ber_bvstrdup(password);
+	err = ldap_sasl_bind_s (conn->ld, who, LDAP_SASL_SIMPLE, cred, NULL, NULL, NULL);
+	ber_bvfree(cred);
 #else
 	err = ldap_bind_s (conn->ld, who, password, LDAP_AUTH_SIMPLE);
 #endif
