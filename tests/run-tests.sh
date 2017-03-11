@@ -7,6 +7,15 @@ password=thepassword
 rm -rf "$d/slapd-config" "$d/slapd-data"
 mkdir "$d/slapd-config" "$d/slapd-data"
 
+module_path='/usr/lib/ldap'
+test -d "$module_path" \
+	|| module_path='/usr/lib/openldap'
+
+schema_path='/etc/ldap/schema'
+test -d "$schema_path" \
+	|| module_path='/etc/openldap/schema'
+
+
 # populate slapd config
 slapadd -F "$d/slapd-config" -n0 <<EOF
 dn: cn=config
@@ -21,13 +30,13 @@ cn: schema
 dn: cn=module,cn=config
 objectClass: olcModuleList
 cn: module
-olcModulepath: /usr/lib/openldap
+olcModulepath: $module_path
 olcModuleload: back_bdb.so
 
-include: file:///etc/openldap/schema/core.ldif
-include: file:///etc/openldap/schema/cosine.ldif
-include: file:///etc/openldap/schema/inetorgperson.ldif
-include: file:///etc/openldap/schema/nis.ldif
+include: file://$schema_path/core.ldif
+include: file://$schema_path/cosine.ldif
+include: file://$schema_path/inetorgperson.ldif
+include: file://$schema_path/nis.ldif
 
 dn: olcDatabase=config,cn=config
 objectClass: olcDatabaseConfig
