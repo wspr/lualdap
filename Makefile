@@ -1,7 +1,7 @@
 # $Id: Makefile,v 1.30 2007-03-13 22:07:33 godinho Exp $
 
 T= lualdap
-V= 1.1.0
+V= 1.2.3
 CONFIG= ./config
 
 include $(CONFIG)
@@ -26,3 +26,6 @@ install: src/$(LIBNAME)
 
 clean:
 	rm -f $(OBJS) src/$(LIBNAME)
+
+check:
+	LUA_CPATH="src/?.so.$V" sh tests/run-tests.sh

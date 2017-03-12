@@ -1,10 +1,10 @@
 # Installation directories
 # System's libraries directory (where binary libraries are installed)
-LUA_LIBDIR= /usr/local/lib/lua/5.0
+LUA_LIBDIR= /usr/lib/lua/5.1
 # Lua includes directory
-LUA_INC= /usr/local/include
+LUA_INC= /usr/include/lua5.1
 # OpenLDAP includes directory
-OPENLDAP_INC= /usr/local/include
+OPENLDAP_INC= /usr/include
 # OpenLDAP library (an optional directory can be specified with -L<dir>)
 OPENLDAP_LIB= -lldap
 
