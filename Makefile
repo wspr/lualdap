@@ -1,5 +1,6 @@
 # $Id: Makefile,v 1.30 2007-03-13 22:07:33 godinho Exp $
 
+N= LuaLDAP
 T= lualdap
 V= 1.2.3
 CONFIG= ./config
@@ -12,6 +13,7 @@ endif
 
 OBJS= src/lualdap.o $(COMPAT_O)
 
+CPPFLAGS:=$(CPPFLAGS) -DPACKAGE_STRING="\"$N $V\""
 
 src/$(LIBNAME): $(OBJS)
 	export MACOSX_DEPLOYMENT_TARGET="10.3"; $(CC) $(CFLAGS) $(LIB_OPTION) -o src/$(LIBNAME) $(OBJS) $(OPENLDAP_LIB)

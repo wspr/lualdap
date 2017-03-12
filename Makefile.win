@@ -1,3 +1,4 @@
+N= LuaLDAP
 T= lualdap
 V= 1.2.3
 
@@ -6,10 +7,12 @@ include config.win
 SRCS= src\$T.c
 OBJS= src\$T.obj
 
+CPPFLAGS:=$(CPPFLAGS) /DPACKAGE_STRING="\"$N $V\""
+
 lib: src\$(LIBNAME)
 
 .c.obj:
-	$(CC) /c /Fo$@ $(CFLAGS) $<
+	$(CC) /c /Fo$@ $(CPPFLAGS) $(CFLAGS) $<
 
 src\$(LIBNAME): $(OBJS)
 	link /dll /def:src\$T.def /out:src\$(LIBNAME) $(OBJS) $(LUA_LIB) $(LDAP_LIB)

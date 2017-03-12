@@ -26,6 +26,7 @@ build = {
    modules = {
       lualdap = {
          sources = {"src/lualdap.c"},
+         defines = {"PACKAGE_STRING=\""..version.."\""},
          libdirs = {"$(LIBLDAP_LIBDIR)"},
          incdirs = {"$(LIBLDAP_INCDIR)"},
          libraries = {"ldap"},
