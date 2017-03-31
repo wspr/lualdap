@@ -889,7 +889,7 @@ static int lualdap_conn_tostring (lua_State *L) {
 	if (conn->ld == NULL)
 		strcpy (buff, "closed");
 	else
-		sprintf (buff, "%p", conn);
+		sprintf (buff, "%p", (void*)conn);
 	lua_pushfstring (L, "%s (%s)", LUALDAP_CONNECTION_METATABLE, buff);
 	return 1;
 }
@@ -906,7 +906,7 @@ static int lualdap_search_tostring (lua_State *L) {
 	if (search->conn == LUA_NOREF)
 		strcpy (buff, "closed");
 	else
-		sprintf (buff, "%p", search);
+		sprintf (buff, "%p", (void*)search);
 	lua_pushfstring (L, "%s (%s)", LUALDAP_SEARCH_METATABLE, buff);
 	return 1;
 }
