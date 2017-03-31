@@ -30,4 +30,4 @@ clean:
 	rm -f $(OBJS) src/$(LIBNAME)
 
 check:
-	LUA_CPATH="src/?.so.$V" sh tests/run-tests.sh
+	LUA=$(LUA) LUA_CPATH="src/?.so.$V" sh tests/run-tests.sh
