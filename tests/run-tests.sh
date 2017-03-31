@@ -89,4 +89,5 @@ ${LUA:-lua} tests/test.lua \
 	localhost:3899 \
 	dc=example,dc=invalid \
 	uid=ldapuser,dc=example,dc=invalid \
+	uid=ldapuser,dc=example,dc=invalid \
 	"$password"

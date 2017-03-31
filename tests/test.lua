@@ -96,7 +96,7 @@ end
 -- basic checking test.
 ---------------------------------------------------------------------
 function basic_test ()
-	local ld = CONN_OK (lualdap.open_simple (HOSTNAME, WHO, PASSWORD))
+	local ld = CONN_OK (lualdap.open_simple (HOSTNAME, BIND_DN, PASSWORD))
 	assert2 (1, ld:close(), "couldn't close connection")
 	-- trying to close without a connection.
 	assert2 (false, pcall (ld.close))
@@ -112,11 +112,11 @@ function basic_test ()
 	assert2 (nil, lualdap.open_simple ("unknown-server"), "this should be an error")
 	-- reopen the connection.
 	-- first, try using TLS
-	local ok = lualdap.open_simple (HOSTNAME, WHO, PASSWORD, true)
+	local ok = lualdap.open_simple (HOSTNAME, BIND_DN, PASSWORD, true)
 	if not ok then
 		-- second, try without TLS
 		io.write ("\nWarning!  Couldn't connect with TLS.  Trying again without it.")
-		ok = lualdap.open_simple (HOSTNAME, WHO, PASSWORD, false)
+		ok = lualdap.open_simple (HOSTNAME, BIND_DN, PASSWORD, false)
 	end
 	LD = CONN_OK (ok)
 	CLOSED_LD = ld
@@ -377,15 +377,16 @@ tests = {
 -- Main
 ---------------------------------------------------------------------
 
-if #arg < 1 then
-	print (string.format ("Usage %s host[:port] base [who [password]]", arg[0]))
+if #arg < 3 then
+	print (string.format ("Usage %s host[:port] base who [bind_dn [password]]", arg[0]))
 	os.exit()
 end
 
 HOSTNAME = arg[1]
 BASE = arg[2]
 WHO = arg[3]
-PASSWORD = arg[4]
+BIND_DN = arg[4]
+PASSWORD = arg[5]
 
 require"lualdap"
 assert (type(lualdap)=="table", "couldn't load LDAP library")
