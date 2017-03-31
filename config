@@ -21,9 +21,10 @@ LIBNAME= $T.so.$V
 COMPAT_DIR= ../compat/src
 
 # Compilation parameters
-WARN= -O2 -Wall -fPIC -W -Waggregate-return -Wcast-align -Wmissing-prototypes -Wnested-externs -Wshadow -Wwrite-strings -ansi -DLUA_C89_NUMBERS
-INCS= -I$(LUA_INC) -I$(OPENLDAP_INC) -I$(COMPAT_DIR)
-CFLAGS= $(WARN) $(INCS)
+WARN= -pedantic -Wall -W -Waggregate-return -Wcast-align -Wmissing-prototypes -Wnested-externs -Wshadow -Wwrite-strings
+CPPFLAGS= -DLUA_C89_NUMBERS -I$(LUA_INC) -I$(OPENLDAP_INC) -I$(COMPAT_DIR)
+CFLAGS= -O2 -fPIC -std=c89 $(WARN)
 CC= gcc
 
-# $Id: config,v 1.5 2006-07-24 01:42:06 tomas Exp $
+MACOSX_DEPLOYMENT_TARGET="10.3"
+export MACOSX_DEPLOYMENT_TARGET

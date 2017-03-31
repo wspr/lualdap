@@ -1,11 +1,15 @@
-# $Id: Makefile,v 1.30 2007-03-13 22:07:33 godinho Exp $
-
 N= LuaLDAP
 T= lualdap
 V= 1.2.3
 CONFIG= ./config
 
 include $(CONFIG)
+
+ifneq ($(filter check,$(MAKECMDGOALS)),)
+$(foreach var,LDAP_URI LDAP_BASE_DN LDAP_BIND_DN LDAP_BIND_PASSWORD LDAP_TEST_DN LDAP_TEST_PASSWORD,$(if $(value $(var)),$(info $(var): $(value $(var))),$(error $(var) required when running tests)))
+endif
+
+LDAP_HOST= $(patsubst %:389/,%,$(patsubst ldap://%,%,$(LDAP_URI)))
 
 ifeq "$(LUA_VERSION_NUM)" "500"
 COMPAT_O= $(COMPAT_DIR)/compat-5.1.o
@@ -16,18 +20,14 @@ OBJS= src/lualdap.o $(COMPAT_O)
 CPPFLAGS:=$(CPPFLAGS) -DPACKAGE_STRING="\"$N $V\""
 
 src/$(LIBNAME): $(OBJS)
-	export MACOSX_DEPLOYMENT_TARGET="10.3"; $(CC) $(CFLAGS) $(LIB_OPTION) -o src/$(LIBNAME) $(OBJS) $(OPENLDAP_LIB)
-
-$(COMPAT_DIR)/compat-5.1.o: $(COMPAT_DIR)/compat-5.1.c
-	$(CC) -c $(CFLAGS) -o $@ $(COMPAT_DIR)/compat-5.1.c
+	$(CC) $(CFLAGS) $(LIB_OPTION) -o src/$(LIBNAME) $(OBJS) $(OPENLDAP_LIB)
 
 install: src/$(LIBNAME)
-	mkdir -p $(DESTDIR)$(LUA_LIBDIR)
-	cp src/$(LIBNAME) $(DESTDIR)$(LUA_LIBDIR)
-	cd $(DESTDIR)$(LUA_LIBDIR); ln -f -s $(LIBNAME) $T.so
+	$(INSTALL) src/$(LIBNAME) $(DESTDIR)$(LUA_LIBDIR)
+	ln -f -s $(LIBNAME) $(DESTDIR)$(LUA_LIBDIR)/$T.so
 
 clean:
-	rm -f $(OBJS) src/$(LIBNAME)
+	$(RM) $(OBJS) src/$(LIBNAME)
 
 check:
-	LUA=$(LUA) LUA_CPATH="src/?.so.$V" sh tests/run-tests.sh
+	env LUA_CPATH_5_3="src/?.so.$(V)" $(LUA) tests/test.lua $(LDAP_HOST) $(LDAP_BASE_DN) $(LDAP_TEST_DN) $(LDAP_BIND_DN) $(LDAP_BIND_PASSWORD)
