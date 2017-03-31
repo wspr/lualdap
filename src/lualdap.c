@@ -726,11 +726,8 @@ static int next_message (lua_State *L) {
 	int rc;
 	int ret;
 
-	luaL_checktype(L, 1, LUA_TTABLE);
-
 	lua_rawgeti (L, LUA_REGISTRYINDEX, search->conn);
 	conn = (conn_data *)lua_touserdata (L, -1); /* get connection */
-
 	rc = ldap_result (conn->ld, search->msgid, LDAP_MSG_ONE, get_timeout_param (L, 1, &timeout), &res);
 	if (rc == 0)
 		return faildirect (L, LUALDAP_PREFIX"result timeout expired");
