@@ -1,28 +1,36 @@
-# Installation directories
-# System's libraries directory (where binary libraries are installed)
-LUA_LIBDIR= /usr/lib/lua/5.3
-# Lua includes directory
-LUA_INC= /usr/include/lua5.3
-# OpenLDAP includes directory
-OPENLDAP_INC= /usr/include
-# OpenLDAP library (an optional directory can be specified with -L<dir>)
-OPENLDAP_LIB= -lldap
-
-# OS dependent
-LIB_OPTION= -shared #for Linux
-#LIB_OPTION= -bundle -undefined dynamic_lookup #for MacOS X
+# Lua version number (first and second digits of target version)
+LUA_VERSION = 5.3
 
 # Lua binary
-LUA= lua5.3
+LUA = lua$(LUA_VERSION)
+# Lua library
+LUA_LIB = -llua$(LUA_VERSION)
+# System's libraries directory (where binary libraries are installed)
+LUA_LIBDIR = /usr/lib
+# Lua binary module directory
+LUA_CMODDIR = /usr/lib/lua/$(LUA_VERSION)
+# Lua source module directory
+LUA_LMODDIR = /usr/share/lua/$(LUA_VERSION)
+# Lua includes directory
+LUA_INCDIR = /usr/include/lua$(LUA_VERSION)
 
-# Lua version number (first and second digits of target version)
-LUA_VERSION_NUM= 503
-LIBNAME= $T.so.$V
+# OpenLDAP library (an optional directory can be specified with -L<dir>)
+OPENLDAP_LIB = -lldap -llber
+# System's libraries directory (where binary libraries are installed)
+OPENLDAP_LIBDIR= /usr/lib
+# OpenLDAP includes directory
+OPENLDAP_INCDIR = /usr/include
+
+# OS dependent
+LIBFLAG = -shared # for Linux
+#LIBFLAG = -bundle -undefined dynamic_lookup # for MacOS X
+
+LIBNAME= $(T).so.$(V)
 COMPAT_DIR= ../compat/src
 
 # Compilation parameters
 WARN= -pedantic -Wall -W -Waggregate-return -Wcast-align -Wmissing-prototypes -Wnested-externs -Wshadow -Wwrite-strings
-CPPFLAGS= -DLUA_C89_NUMBERS -I$(LUA_INC) -I$(OPENLDAP_INC) -I$(COMPAT_DIR)
+CPPFLAGS= -DLUA_C89_NUMBERS -I$(LUA_INCDIR) -I$(OPENLDAP_INCDIR) -I$(COMPAT_DIR)
 CFLAGS= -O2 -fPIC -std=c89 $(WARN)
 CC= gcc
 

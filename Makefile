@@ -11,20 +11,20 @@ endif
 
 LDAP_HOST= $(patsubst %:389/,%,$(patsubst ldap://%,%,$(LDAP_URI)))
 
-ifeq "$(LUA_VERSION_NUM)" "500"
+ifeq ($(LUA_VERSION),5.0)
 COMPAT_O= $(COMPAT_DIR)/compat-5.1.o
 endif
 
 OBJS= src/lualdap.o $(COMPAT_O)
 
-CPPFLAGS:=$(CPPFLAGS) -DPACKAGE_STRING="\"$N $V\""
+CPPFLAGS:=$(CPPFLAGS) -DPACKAGE_STRING="\"$(N) $(V)\""
 
 src/$(LIBNAME): $(OBJS)
-	$(CC) $(CFLAGS) $(LIB_OPTION) -o src/$(LIBNAME) $(OBJS) $(OPENLDAP_LIB)
+	$(CC) $(CFLAGS) $(LIBFLAG) -o src/$(LIBNAME) $(OBJS) -L$(LUA_LIBDIR) $(LUA_LIB) -L$(OPENLDAP_LIBDIR) $(OPENLDAP_LIB)
 
 install: src/$(LIBNAME)
-	$(INSTALL) src/$(LIBNAME) $(DESTDIR)$(LUA_LIBDIR)
-	ln -f -s $(LIBNAME) $(DESTDIR)$(LUA_LIBDIR)/$T.so
+	$(INSTALL) src/$(LIBNAME) $(DESTDIR)$(LUA_CMODDIR)
+	ln -f -s $(LIBNAME) $(DESTDIR)$(LUA_CMODDIR)/$(T).so
 
 clean:
 	$(RM) $(OBJS) src/$(LIBNAME)
