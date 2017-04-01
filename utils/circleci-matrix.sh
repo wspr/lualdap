@@ -182,7 +182,7 @@ read_file() {
 process_commands() {
     local line=""
     local envfile=$1
-    local tempfile=$(mktemp -t circleci_matrix.XXX)
+    local tempfile=$(mktemp -t)
 
     while read -r line; do
         cp -f "$envfile" "$tempfile"
@@ -207,7 +207,7 @@ process_commands() {
 process_envs() {
     local line=""
     local i=0
-    local tempfile=$(mktemp -t circleci_matrix.XXX)
+    local tempfile=$(mktemp -t)
     local sources_prefix="$(sources)"
 
     while read -r line; do
