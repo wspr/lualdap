@@ -14,6 +14,6 @@ before_install:
   - source .venv/bin/activate
 install:
   - sudo apt-get install slapd
-  - luarocks make rockspecs/lualdap/lualdap-dev-1.rockspec
+  - luarocks make
 script:
   - LUA=lua tests/run-tests.sh
