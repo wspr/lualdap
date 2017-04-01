@@ -9,8 +9,54 @@
 -- $Id: test.lua,v 1.15 2006-07-24 01:36:51 tomas Exp $
 ---------------------------------------------------------------------
 
+local getenv = require("os").getenv
+local unpack = assert(require("table")).unpack or unpack
+
+local assert = assert(require("luassert"))
+local say = assert(require("say"))
+
+local lualdap = assert(require("lualdap"))
+
+local HOSTNAME = assert(getenv("LDAP_HOST"))
+local BASE = assert(getenv("LDAP_BASE_DN"))
+local WHO = assert(getenv("LDAP_TEST_DN"))
+local BIND_DN = assert(getenv("LDAP_BIND_DN"))
+local PASSWORD = assert(getenv("LDAP_BIND_PASSWORD"))
+
+local function set_failure_message(state, message)
+	if message ~= nil then
+		state.failure_message = message
+	end
+end
+
+local function returned_future(state, arguments, level)
+	local expected_return_value = arguments[1]
+	local f = arguments[2]
+	local ok, future = pcall(f, unpack(arguments, 3))
+	if not ok then
+		set_failure_message(state, "Call was not successful: "..tostring(future))
+		return false
+	elseif type(future) ~= "function" then
+		set_failure_message(state, "Call did not return a function: "..type(future))
+		return false
+	else
+		local return_value = future()
+		if return_value ~= expected_return_value then
+			set_failure_message(state, "Future did not return expected value (expected: "..tostring(expected_return_value)..", got: "..tostring(return_value)..")")
+			return false
+		end
+	end
+
+	return true
+end
+
+say:set_namespace("en")
+say:set("assertion.returned_future.positive", "Expected call to return a future %s:\n%s")
+say:set("assertion.returned_future.negative", "Expected call not to return a future %s:\n%s")
+assert:register("assertion", "returned_future", returned_future, "assertion.returned_future.positive", "assertion.returned_future.negative")
+
 --
-DN_PAT = "^([^,=]+)%=([^,]+)%,?(.*)$"
+local DN_PAT = "^([^,=]+)%=([^,]+)%,?(.*)$"
 
 ---------------------------------------------------------------------
 -- Print attributes.
@@ -50,37 +96,29 @@ end
 
 
 ---------------------------------------------------------------------
--- checks for a value and throw an error if it is not the expected.
----------------------------------------------------------------------
-function assert2 (expected, value, msg)
-	if not msg then
-		msg = ''
-	else
-		msg = tostring(msg)..'\n'
-	end
-	local ret = assert (value == expected,
-		msg.."wrong value (["..tostring(value).."] instead of "..
-		tostring(expected)..")")
-	io.write('.')
-	return ret
-end
-
----------------------------------------------------------------------
 -- object test.
 ---------------------------------------------------------------------
 function test_object (obj, objmethods)
 	-- checking object type.
-	assert2 ("userdata", type(obj), "incorrect object type")
+	it("is a userdata object", function()
+		assert.is_userdata(obj)
+	end)
 	-- trying to get metatable.
-	assert2 ("LuaLDAP: you're not allowed to get this metatable",
-		getmetatable(obj), "error permitting access to object's metatable")
+	it("is not permitted to access the object's metatable", function()
+		assert.is_same("LuaLDAP: you're not allowed to get this metatable",
+			getmetatable(obj))
+	end)
 	-- trying to set metatable.
-	assert2 (false, pcall (setmetatable, ENV, {}))
+	assert.is_false(pcall(setmetatable, ENV, {}))
 	-- checking existence of object's methods.
 	for i = 1, #objmethods do
 		local method = obj[objmethods[i]]
-		assert2 ("function", type(method))
-		assert2 (false, pcall (method), "no 'self' parameter accepted")
+		it(objmethods[i].."is a function", function()
+			assert.is_function(method)
+		end)
+		it("is not acceptable to call the "..objmethods[i].." without 'self'", function()
+			assert.is_false(pcall(method))
+		end)
 	end
 	return obj
 end
@@ -95,73 +133,81 @@ end
 ---------------------------------------------------------------------
 -- basic checking test.
 ---------------------------------------------------------------------
-function basic_test ()
+describe("basics", function()
 	local ld = CONN_OK (lualdap.open_simple (HOSTNAME, BIND_DN, PASSWORD))
-	assert2 (1, ld:close(), "couldn't close connection")
+	it("can close connection", function()
+		assert.is_same(1, ld:close())
+	end)
 	-- trying to close without a connection.
-	assert2 (false, pcall (ld.close))
+	assert.is_false(pcall(ld.close))
 	-- trying to close an invalid connection.
-	assert2 (false, pcall (ld.close, io.output()))
+	assert.is_false(pcall(ld.close, io.output()))
 	-- trying to use a closed connection.
 	local _,_,rdn_name,rdn_value = string.find (BASE, DN_PAT)
-	assert2 (false, pcall (ld.compare, ld, BASE, rdn_name, rdn_value),
-		"permitting the use of a closed connection")
-	-- it is ok to close a closed object, but nil is returned instead of 1.
-	assert2 (nil, ld:close())
-	-- trying to connect to an invalid host.
-	assert2 (nil, lualdap.open_simple ("unknown-server"), "this should be an error")
+	it("is not permitted to use a closed connection", function()
+		assert.is_false(pcall(ld.compare, ld, BASE, rdn_name, rdn_value))
+	end)
+	it("is ok to close a closed object, but nil is returned instead of 1", function()
+		assert.is_nil(ld:close())
+	end)
+	it("is an error to connect to an invalid host", function()
+		assert.is_nil(lualdap.open_simple ("unknown-server"))
+	end)
+end)
+
+describe("tests on an existing connection", function()
+	local LD, NEW_DN, DN, ENTRY
+
 	-- reopen the connection.
-	-- first, try using TLS
-	local ok = lualdap.open_simple (HOSTNAME, BIND_DN, PASSWORD, true)
-	if not ok then
-		-- second, try without TLS
-		io.write ("\nWarning!  Couldn't connect with TLS.  Trying again without it.")
-		ok = lualdap.open_simple (HOSTNAME, BIND_DN, PASSWORD, false)
-	end
-	LD = CONN_OK (ok)
-	CLOSED_LD = ld
-	collectgarbage()
-end
-
-
----------------------------------------------------------------------
--- checks return value which should be a function AND also its return value.
----------------------------------------------------------------------
-function check_future (ret, method, ...)
-	local ok, f = pcall (method, ...)
-	assert (ok, f)
-	assert2 ("function", type(f))
-	assert2 (ret, f())
-	io.write('.')
-end
-
+	setup(function()
+		-- first, try using TLS
+		local ok, err = lualdap.open_simple (HOSTNAME, BIND_DN, PASSWORD, true)
+		if not ok then
+			ok, err = lualdap.open_simple (HOSTNAME, BIND_DN, PASSWORD, false)
+		end
+		LD = assert(ok, err)
+		CLOSED_LD = ld
+		collectgarbage()
+	end)
 
 ---------------------------------------------------------------------
 -- checking compare operation.
 ---------------------------------------------------------------------
-function compare_test ()
+describe("compare operation", function()
 	local _,_,rdn_name,rdn_value = string.find (BASE, DN_PAT)
-	assert (type(rdn_name) == "string", "could not extract RDN name")
-	assert (type(rdn_value) == "string", "could not extract RDN value")
+	assert.message("could not extract RDN name").is_string(rdn_name)
+	assert.message("could not extract RDN value").is_string(rdn_value)
 	-- comparing against the correct value.
-	check_future (true, LD.compare, LD, BASE, rdn_name, rdn_value)
+	it(rdn_name.." = "..rdn_value.." should be true", function()
+		assert.returned_future(true, LD.compare, LD, BASE, rdn_name, rdn_value)
+	end)
 	-- comparing against a wrong value.
-	check_future (false, LD.compare, LD, BASE, rdn_name, rdn_value..'_')
+	it(rdn_name.." = "..rdn_value.." should be false", function()
+		assert.returned_future(false, LD.compare, LD, BASE, rdn_name, rdn_value..'_')
+	end)
 	-- comparing against an incorrect attribute name.
-	check_future (nil, LD.compare, LD, BASE, rdn_name..'x', rdn_value)
+	it(rdn_name.." = "..rdn_value.." should be nil", function()
+		assert.returned_future(nil, LD.compare, LD, BASE, rdn_name..'x', rdn_value)
+	end)
 	-- comparing on a wrong base.
-	check_future (nil, LD.compare, LD, 'qwerty', rdn_name, rdn_value)
+	it("Comparing on a wrong base should be nil", function()
+		assert.returned_future(nil, LD.compare, LD, 'qwerty', rdn_name, rdn_value)
+	end)
 	-- comparing with a closed connection.
-	assert2 (false, pcall (LD.compare, CLOSED_LD, BASE, rdn_name, rdn_value))
+	it("Comparing with a closed connection should fail", function()
+		assert.is_false(pcall(LD.compare, CLOSED_LD, BASE, rdn_name, rdn_value))
+	end)
 	-- comparing with an invalid userdata.
-	assert2 (false, pcall (LD.compare, io.output(), BASE, rdn_name, rdn_value))
-end
+	it("Comparing with an invalid connection should fail", function()
+		assert.is_false(pcall(LD.compare, io.output(), BASE, rdn_name, rdn_value))
+	end)
+end)
 
 
 ---------------------------------------------------------------------
 -- checking basic search operation.
 ---------------------------------------------------------------------
-function search_test_1 ()
+describe("basic search operation", function()
 	local _,_,rdn = string.find (WHO, "^([^,]+)%,.*$")
 	local iter = LD:search {
 		base = BASE,
@@ -169,14 +215,14 @@ function search_test_1 ()
 		sizelimit = 1,
 		filter = "("..rdn..")",
 	}
-	assert2 ("function", type(iter))
+	assert.is_function(iter)
 	collectgarbage()
 	CONN_OK (LD)
 	local dn, entry = iter ()
-	assert2 ("string", type(dn))
-	assert2 ("table", type(entry))
+	assert.is_string(dn)
+	assert.is_table(entry)
 	collectgarbage()
-	assert2 ("function", type(iter))
+	assert.is_function(iter)
 	CONN_OK (LD)
 
 	DN, ENTRY = LD:search {
@@ -186,60 +232,60 @@ function search_test_1 ()
 		filter = "("..rdn..")",
 	}()
 	collectgarbage()
-	assert2 ("string", type(DN))
-	assert2 ("table", type(ENTRY))
-end
+	assert.is_string(DN)
+	assert.is_table(ENTRY)
+end)
 
 
 ---------------------------------------------------------------------
 -- checking add operation.
 ---------------------------------------------------------------------
-function add_test ()
+describe("add operation", function()
 	-- clone an entry.
-	NEW = clone (ENTRY)
+	local NEW = clone (ENTRY)
 	local _,_,rdn_name, rdn_value, parent_dn = string.find (DN, DN_PAT)
 	NEW[rdn_name] = rdn_value.."_copy"
 	NEW_DN = string.format ("%s=%s,%s", rdn_name, NEW[rdn_name], parent_dn)
 	-- trying to insert an entry with a wrong connection.
-	assert2 (false, pcall (LD.add, CLOSED_LD, NEW_DN, NEW))
+	assert.is_false(pcall(LD.add, CLOSED_LD, NEW_DN, NEW))
 	-- trying to insert an entry with an invalid connection.
-	assert2 (false, pcall (LD.add, io.output(), NEW_DN, NEW))
+	assert.is_false(pcall(LD.add, io.output(), NEW_DN, NEW))
 	-- trying to insert an entry with a wrong DN.
 	local wrong_dn = string.format ("%s_x=%s,%s", rdn_name, NEW_DN, parent_dn)
 	--assert2 (nil, LD:add (wrong_dn, NEW))
-	check_future (nil, LD.add, LD, wrong_dn, NEW)
+	assert.returned_future (nil, LD.add, LD, wrong_dn, NEW)
 	-- trying to insert the clone on the LDAP data base.
-	check_future (true, LD.add, LD, NEW_DN, NEW)
+	assert.returned_future(true, LD.add, LD, NEW_DN, NEW)
 	-- trying to reinsert the clone entry on the directory.
-	check_future (nil, LD.add, LD, NEW_DN, NEW)
-end
+	assert.returned_future(nil, LD.add, LD, NEW_DN, NEW)
+end)
 
 
 ---------------------------------------------------------------------
 -- checking modify operation.
 ---------------------------------------------------------------------
-function modify_test ()
+describe("modify operation", function()
 	-- modifying without connection.
-	assert2 (false, pcall (LD.modify, nil, NEW_DN, {}))
+	assert.is_false(pcall (LD.modify, nil, NEW_DN, {}))
 	-- modifying with a closed connection.
-	assert2 (false, pcall (LD.modify, CLOSED_LD, NEW_DN, {}))
+	assert.is_false(pcall (LD.modify, CLOSED_LD, NEW_DN, {}))
 	-- modifying with an invalid userdata.
-	assert2 (false, pcall (LD.modify, io.output(), NEW_DN, {}))
+	assert.is_false(pcall (LD.modify, io.output(), NEW_DN, {}))
 	-- checking invalid DN.
-	assert2 (false, pcall (LD.modify, LD, {}))
+	assert.is_false(pcall (LD.modify, LD, {}))
 	-- no modification to apply.
-	check_future (true, LD.modify, LD, NEW_DN)
+	assert.returned_future(true, LD.modify, LD, NEW_DN)
 	-- forgotten operation on modifications table.
 	local a_attr, a_value = next (ENTRY)
-	assert2 (false, pcall (LD.modify, LD, NEW_DN, { [a_attr] = "abc"}))
+	assert.is_false(pcall (LD.modify, LD, NEW_DN, { [a_attr] = "abc"}))
 	-- modifying an unknown entry.
 	local _,_, rdn_name, rdn_value, parent_dn = string.find (NEW_DN, DN_PAT)
 	local new_rdn = rdn_name..'='..rdn_value..'_'
 	local new_dn = string.format ("%s,%s", new_rdn, parent_dn)
-	check_future (nil, LD.modify, LD, new_dn)
+	assert.returned_future(nil, LD.modify, LD, new_dn)
 	-- trying to create an undefined attribute.
-	check_future (nil, LD.modify, LD, NEW_DN, {'+', unknown_attribute = 'a'})
-end
+	assert.returned_future(nil, LD.modify, LD, NEW_DN, {'+', unknown_attribute = 'a'})
+end)
 
 
 ---------------------------------------------------------------------
@@ -255,7 +301,7 @@ end
 ---------------------------------------------------------------------
 -- checking advanced search operation.
 ---------------------------------------------------------------------
-function search_test_2 ()
+describe("advanced search operation", function()
 	local _,_,rdn = string.find (WHO, "^([^,]+)%,.*$")
 	local iter = LD:search {
 		base = BASE,
@@ -263,137 +309,108 @@ function search_test_2 ()
 		sizelimit = 1,
 		filter = "("..rdn..")",
 	}
-	assert2 ("function", type(iter))
+	assert.is_function(iter)
 	collectgarbage ()
-	assert2 ("function", type(iter))
+	assert.is_function(iter)
 	local dn, entry = iter ()
-	assert2 ("string", type(dn))
-	assert2 ("table", type(entry))
+	assert.is_string(dn)
+	assert.is_table(entry)
 	collectgarbage ()
-	assert2 ("function", type(iter))
+	assert.is_function(iter)
 	iter = nil
 	collectgarbage ()
 
 	-- checking no search specification.
-	assert2 (false, pcall (LD.search, LD))
+	assert.is_false(pcall (LD.search, LD))
 	-- checking invalid scope.
-	assert2 (false, pcall (LD.search, LD, { scope = 'BASE', base = BASE, }))
+	assert.is_false(pcall (LD.search, LD, { scope = 'BASE', base = BASE, }))
 	-- checking invalid base.
-	check_future (nil, LD.search, LD, { base = "invalid", scope = "base", })
+	assert.returned_future(nil, LD.search, LD, { base = "invalid", scope = "base", })
 	-- checking filter.
 	local _,_, rdn_name, rdn_value, parent_dn = string.find (NEW_DN, DN_PAT)
 	local filter = string.format ("(%s=%s)", rdn_name, rdn_value)
-	assert (count { base = BASE, scope = "subtree", filter = filter, } == 1)
+	assert.is_same(1, count { base = BASE, scope = "subtree", filter = filter, })
 	-- checking sizelimit.
-	assert (count { base = BASE, scope = "subtree", sizelimit = 1, } == 1)
+	assert.is_same(1, count { base = BASE, scope = "subtree", sizelimit = 1, })
 	-- checking attrsonly parameter.
 	for dn, entry in LD:search { base = BASE, scope = "subtree", attrsonly = true, } do
 		for attr, value in pairs (entry) do
-			assert (value == true, "attrsonly failed")
+			assert.message("attrsonly failed").is_true(value)
 		end
 	end
 	-- checking reuse of search object.
-	local iter = assert (LD:search { base = BASE, scope = "base", })
-	assert (type(iter) == "function")
+	local iter = assert.is_not_nil(LD:search { base = BASE, scope = "base", })
+	assert.is_function(iter)
 	local dn, e1 = iter()
-	assert (type(dn) == "string")
-	assert (type(e1) == "table")
+	assert.is_string(dn)
+	assert.is_table(e1)
 	dn, e1 = iter()
-	assert (type(dn) == "nil")
-	assert (type(e1) == "nil")
-	assert2 (false, pcall (iter))
+	assert.is_nil(dn)
+	assert.is_nil(e1)
+	assert.is_false(pcall(iter))
 	iter = nil
 	-- checking collecting search objects.
 	local dn, entry = LD:search { base = BASE, scope = "base" }()
 	collectgarbage()
-end
+end)
 
 
 ---------------------------------------------------------------------
 -- checking rename operation.
 ---------------------------------------------------------------------
-function rename_test ()
+describe("rename operation", function()
 	local _,_, rdn_name, rdn_value, parent_dn = string.find (NEW_DN, DN_PAT)
 	local new_rdn = rdn_name..'='..rdn_value..'_'
 	local new_dn = string.format ("%s,%s", new_rdn, parent_dn)
 	-- trying to rename with no parent.
-	check_future (true, LD.rename, LD, NEW_DN, new_rdn, nil)
+	assert.returned_future(true, LD.rename, LD, NEW_DN, new_rdn, nil)
 	-- trying to rename an invalid dn.
-	check_future (nil, LD.rename, LD, NEW_DN, new_rdn, nil)
+	assert.returned_future(nil, LD.rename, LD, NEW_DN, new_rdn, nil)
 	-- trying to rename with the same parent.
-	check_future (true, LD.rename, LD, new_dn, rdn_name..'='..rdn_value, parent_dn)
+	assert.returned_future(true, LD.rename, LD, new_dn, rdn_name..'='..rdn_value, parent_dn)
 	-- trying to rename to an inexistent parent.
-	check_future (nil, LD.rename, LD, NEW_DN, new_rdn, new_dn)
+	assert.returned_future(nil, LD.rename, LD, NEW_DN, new_rdn, new_dn)
 	-- mal-formed DN.
-	assert2 (false, pcall (LD.rename, LD, ""))
+	assert.is_false(pcall (LD.rename, LD, ""))
 	-- trying to rename with a closed connection.
-	assert2 (false, pcall (LD.rename, CLOSED_LD, NEW_DN, new_rdn, nil))
+	assert.is_false(pcall (LD.rename, CLOSED_LD, NEW_DN, new_rdn, nil))
 	-- trying to rename with an invalid connection.
-	assert2 (false, pcall (LD.rename, io.output(), NEW_DN, new_rdn, nil))
-end
+	assert.is_false(pcall (LD.rename, io.output(), NEW_DN, new_rdn, nil))
+end)
 
 
 ---------------------------------------------------------------------
 -- checking delete operation.
 ---------------------------------------------------------------------
-function delete_test ()
+describe("delete operation", function()
 	-- trying to delete with a closed connection.
-	assert2 (false, pcall (LD.delete, CLOSED_LD, NEW_DN))
+	assert.is_false(pcall (LD.delete, CLOSED_LD, NEW_DN))
 	-- trying to delete with an invalid connection.
-	assert2 (false, pcall (LD.delete, io.output(), NEW_DN))
+	assert.is_false(pcall (LD.delete, io.output(), NEW_DN))
 	-- trying to delete new entry.
-	check_future (true, LD.delete, LD, NEW_DN)
+	it("deleting new entry", function()
+		assert.returned_future(true, LD.delete, LD, NEW_DN)
+	end)
 	-- trying to delete an already deleted entry.
-	check_future (nil, LD.delete, LD, NEW_DN)
+	it("deleting an already deleted entry", function()
+		assert.returned_future(nil, LD.delete, LD, NEW_DN)
+	end)
 	-- mal-formed DN.
-	check_future (nil, LD.delete, LD, "")
+	it("deleting a mal-formed DN", function()
+		assert.returned_future(nil, LD.delete, LD, "")
+	end)
 	-- no DN.
-	assert2 (false, pcall (LD.delete, LD))
-end
+	it("deleting a nil DN", function()
+		assert.is_false(pcall(LD.delete, LD))
+	end)
+end)
 
 
 ---------------------------------------------------------------------
 -- checking close operation.
 ---------------------------------------------------------------------
-function close_test ()
-	assert (LD:close () == 1, "couldn't close connection")
-end
+describe("close operation", function()
+	assert.message("couldn't close connection").is_same(1, LD:close())
+end)
 
-
----------------------------------------------------------------------
-tests = {
-	{ "basic checking", basic_test },
-	{ "checking compare operation", compare_test },
-	{ "checking basic search operation", search_test_1 },
-	{ "checking add operation", add_test },
-	{ "checking modify operation", modify_test },
-	{ "checking advanced search operation", search_test_2 },
-	{ "checking rename operation", rename_test },
-	{ "checking delete operation", delete_test },
-	{ "closing everything", close_test },
-}
-
----------------------------------------------------------------------
--- Main
----------------------------------------------------------------------
-
-if #arg < 3 then
-	print (string.format ("Usage %s host[:port] base who [bind_dn [password]]", arg[0]))
-	os.exit()
-end
-
-HOSTNAME = arg[1]
-BASE = arg[2]
-WHO = arg[3]
-BIND_DN = arg[4]
-PASSWORD = arg[5]
-
-require"lualdap"
-assert (type(lualdap)=="table", "couldn't load LDAP library")
-
-for i = 1, #tests do
-	local t = tests[i]
-	io.write (t[1].." ...")
-	t[2] ()
-	io.write (" OK !\n")
-end
+end)

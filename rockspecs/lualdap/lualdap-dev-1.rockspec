@@ -13,23 +13,41 @@ description = {
    license = "MIT"
 }
 dependencies = {
-   "lua >= 5.1"
+   "lua >= 5.1",
 }
 external_dependencies = {
-   LIBLDAP = {
+   LDAP = {
       header = "ldap.h",
       library = "ldap",
-   }
+   },
+   LBER = {
+      header = "lber.h",
+      library = "lber",
+   },
 }
 build = {
-   type = "builtin",
-   modules = {
-      lualdap = {
-         sources = {"src/lualdap.c"},
-         defines = {"PACKAGE_STRING=\""..version.."\""},
-         libdirs = {"$(LIBLDAP_LIBDIR)"},
-         incdirs = {"$(LIBLDAP_INCDIR)"},
-         libraries = {"ldap"},
-      },
-   }
+   type = "make",
+   variables = {
+      COVERAGE="$(COVERAGE)",
+      JUNITXML="$(JUNITXML)",
+   },
+   build_variables = {
+      CFLAGS="$(CFLAGS) -std=c89 -pedantic -Wall -Werror",
+      LIBFLAG="$(LIBFLAG)",
+      LUA_LIBDIR="$(LUA_LIBDIR)",
+      LUA_BINDIR="$(LUA_BINDIR)",
+      LUA_INCDIR="$(LUA_INCDIR)",
+      LUA="$(LUA)",
+      LDAP_LIBDIR="$(LDAP_LIBDIR)",
+      LDAP_INCDIR="$(LDAP_INCDIR)",
+      LBER_LIBDIR="$(LBER_LIBDIR)",
+      LBER_INCDIR="$(LBER_INCDIR)",
+   },
+   install_variables = {
+      INST_PREFIX="$(PREFIX)",
+      INST_BINDIR="$(BINDIR)",
+      INST_LIBDIR="$(LIBDIR)",
+      INST_LUADIR="$(LUADIR)",
+      INST_CONFDIR="$(CONFDIR)",
+   },
 }

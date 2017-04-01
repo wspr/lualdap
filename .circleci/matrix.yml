@@ -1,0 +1,10 @@
+env:
+- LUAENV_VERSION=5.1.5
+- LUAENV_VERSION=5.2.4
+- LUAENV_VERSION=5.3.3
+- LUAENV_VERSION=luajit-2.0.4
+- LUAENV_VERSION=luajit-2.1.0-beta2
+command:
+- eval "$(luaenv init -)" && luarocks make rockspecs/lualdap/lualdap-dev-1.rockspec COVERAGE=1 JUNITXML=1
+- eval "$(luaenv init -)" && make JUNITXML_DIR=test-reports/$LUAENV_VERSION COVERAGE=1 JUNITXML=1 check
+- eval "$(luaenv init -)" && make clean

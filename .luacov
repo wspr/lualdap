@@ -1,0 +1,7 @@
+return {
+	root = ".",
+	include = {
+		-- Prevent coverage reports of the tests or helper utilities
+		"src/.+",
+	},
+}

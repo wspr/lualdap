@@ -1,6 +1,13 @@
 *~
 *.bak
+*.gcda
+*.gcno
+*.gcov
+*.json
 *.o
+*.out
 *.so
 *.so.*
 *.rock
+*.xml
+test-reports/

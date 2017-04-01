@@ -1,38 +1,46 @@
-# Lua version number (first and second digits of target version)
-LUA_VERSION = 5.3
-
 # Lua binary
-LUA = lua$(LUA_VERSION)
+LUA := lua
+# Lua version number (first and second digits of target version)
+LUA_VERSION := $(shell $(LUA) -e 'print(_VERSION:match("%S+%s+(%S+)"))')
+
 # Lua library
 LUA_LIB = -llua$(LUA_VERSION)
-# System's libraries directory (where binary libraries are installed)
+# Lua library directory
 LUA_LIBDIR = /usr/lib
-# Lua binary module directory
-LUA_CMODDIR = /usr/lib/lua/$(LUA_VERSION)
-# Lua source module directory
-LUA_LMODDIR = /usr/share/lua/$(LUA_VERSION)
-# Lua includes directory
+# Lua include directory
 LUA_INCDIR = /usr/include/lua$(LUA_VERSION)
 
+# Installation prefix
+INST_PREFIX = /usr
+# Lua binary directory
+INST_BINDIR = /usr/bin
+# Lua binary module directory
+INST_LIBDIR = /usr/lib/lua/$(LUA_VERSION)
+# Lua source module directory
+INST_LUADIR = /usr/share/lua/$(LUA_VERSION)
+
 # OpenLDAP library (an optional directory can be specified with -L<dir>)
-OPENLDAP_LIB = -lldap -llber
+LDAP_LIB = -lldap
 # System's libraries directory (where binary libraries are installed)
-OPENLDAP_LIBDIR= /usr/lib
+LDAP_LIBDIR = /usr/lib
 # OpenLDAP includes directory
-OPENLDAP_INCDIR = /usr/include
+LDAP_INCDIR = /usr/include
+
+LBER_LIB = -llber
+LBER_LIBDIR = /usr/lib
+LBER_INCDIR = /usr/include
 
 # OS dependent
 LIBFLAG = -shared # for Linux
 #LIBFLAG = -bundle -undefined dynamic_lookup # for MacOS X
 
-LIBNAME= $(T).so.$(V)
 COMPAT_DIR= ../compat/src
 
 # Compilation parameters
 WARN= -pedantic -Wall -W -Waggregate-return -Wcast-align -Wmissing-prototypes -Wnested-externs -Wshadow -Wwrite-strings
-CPPFLAGS= -DLUA_C89_NUMBERS -I$(LUA_INCDIR) -I$(OPENLDAP_INCDIR) -I$(COMPAT_DIR)
 CFLAGS= -O2 -fPIC -std=c89 $(WARN)
 CC= gcc
+INSTALL= install
 
 MACOSX_DEPLOYMENT_TARGET="10.3"
 export MACOSX_DEPLOYMENT_TARGET

@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: /lualdap
     docker:
-    - image: quay.io/devurandom/lua-dev:debian8.7-lua5.3-2
+    - image: quay.io/devurandom/lua-dev:debian8.7-6
     - image: docker.io/openshift/openldap-2441-centos7
     steps:
     - checkout
@@ -13,29 +13,10 @@ jobs:
           apt -y update
           apt -y install libldap2-dev ldap-utils
     - run:
-        name: Build
-        command: make
-    - run:
         name: Prime and test LDAP DB
-        command: |
-          ldapsearch -x -LLL -H ${LDAP_URI} -b ${LDAP_BASE_DN} objectClass=organization | grep "dc=example,dc=com"
-          ldapadd -x -H ${LDAP_URI} -D ${LDAP_BIND_DN} -w ${LDAP_BIND_PASSWORD} -f tests/test.ldif
-          ldappasswd -x -H ${LDAP_URI} -D ${LDAP_BIND_DN} -w ${LDAP_BIND_PASSWORD} -s ${LDAP_TEST_PASSWORD} ${LDAP_TEST_DN}
-          ldapsearch -x -LLL -H ${LDAP_URI} -D ${LDAP_TEST_DN} -w ${LDAP_TEST_PASSWORD} -b ${LDAP_BASE_DN} ${LDAP_TEST_SUBJECT} memberof | grep "memberOf: cn=group"
-        environment:
-          LDAP_URI: ldap://localhost:389/
-          LDAP_BASE_DN: dc=example,dc=com
-          LDAP_BIND_DN: cn=Manager,dc=example,dc=com
-          LDAP_BIND_PASSWORD: admin
-          LDAP_TEST_DN: cn=person,dc=example,dc=com
-          LDAP_TEST_PASSWORD: thepassword
+        command: ./tests/setup.sh
     - run:
-        name: Run tests
-        command: make check
-        environment:
-          LDAP_URI: ldap://localhost:389/
-          LDAP_BASE_DN: dc=example,dc=com
-          LDAP_BIND_DN: cn=Manager,dc=example,dc=com
-          LDAP_BIND_PASSWORD: admin
-          LDAP_TEST_DN: cn=person,dc=example,dc=com
-          LDAP_TEST_PASSWORD: thepassword
+        name: Run matrix build
+        command: ./utils/circleci-matrix.sh --config .circleci/matrix.yml
+    - store_test_results:
+        path: test-reports/
