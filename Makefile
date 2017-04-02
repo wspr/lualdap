@@ -15,7 +15,6 @@ endif
 ifdef COVERAGE
 override CFLAGS := $(CFLAGS) -O0 -g --coverage
 override BUSTEDFLAGS := $(BUSTEDFLAGS) --coverage
-COVERAGE_REPORT := coverage-report.json
 endif
 
 ifdef JUNITXML
@@ -40,7 +39,7 @@ install: src/$(LIBNAME)
 	$(INSTALL) src/$(LIBNAME) $(DESTDIR)$(INST_LIBDIR)
 
 clean:
-	$(RM) -r $(OBJS) src/$(LIBNAME) src/*.gcda src/*.gcno src/*.gcov $(JUNITXML_DIR) $(COVERAGE_REPORT) luacov.*.out
+	$(RM) -r $(OBJS) src/$(LIBNAME) src/*.gcda src/*.gcno src/*.gcov luacov.*.out $(JUNITXML_DIR)
 
 check:
 ifdef JUNITXML
@@ -48,7 +47,6 @@ ifdef JUNITXML
 endif
 	env $(foreach var,$(LDAP_VARS) LDAP_HOST,$(var)=$($(var))) busted $(BUSTEDFLAGS) tests/test.lua
 ifdef COVERAGE
-	coveralls --build-root . --include src --dump $(COVERAGE_REPORT)
-	luacov-coveralls --json $(COVERAGE_REPORT)
+	luacov
 	./utils/codecov.sh
 endif
