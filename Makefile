@@ -46,7 +46,7 @@ check:
 ifdef JUNITXML
 	mkdir -p $(JUNITXML_DIR)
 endif
-	env $(foreach var,$(LDAP_VARS) LDAP_HOST,$(var)=$($(var))) PROJECT_ROOT=$(PWD) busted $(BUSTEDFLAGS) tests/test.lua
+	env $(foreach var,$(LDAP_VARS) LDAP_HOST,$(var)=$($(var))) busted $(BUSTEDFLAGS) tests/test.lua
 ifdef COVERAGE
 	coveralls --build-root . --include src --dump $(COVERAGE_REPORT)
 	luacov-coveralls --json $(COVERAGE_REPORT)
