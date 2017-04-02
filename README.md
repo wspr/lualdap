@@ -2,6 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/devurandom/lualdap.svg?style=svg)](https://circleci.com/gh/devurandom/lualdap)
 [![Build Status](https://travis-ci.org/devurandom/lualdap.svg?branch=master)](https://travis-ci.org/devurandom/lualdap)
+[![codecov](https://codecov.io/gh/devurandom/lualdap/branch/master/graph/badge.svg)](https://codecov.io/gh/devurandom/lualdap)
 
 LuaLDAP is a simple interface from Lua to an LDAP client, in fact it is a bind to
 OpenLDAP or to ADSI. It enables a Lua program to:
