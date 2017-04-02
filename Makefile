@@ -50,4 +50,5 @@ endif
 ifdef COVERAGE
 	coveralls --build-root . --include src --dump $(COVERAGE_REPORT)
 	luacov-coveralls --json $(COVERAGE_REPORT)
+	./utils/codecov.sh
 endif
