@@ -85,9 +85,11 @@ EOF
 slapd -F "$d/slapd-config" -h ldap://localhost:3899/
 trap 'kill -TERM $(cat "$d/slapd.pid")' EXIT
 
-${LUA:-lua} tests/test.lua \
-	localhost:3899 \
-	dc=example,dc=invalid \
-	uid=ldapuser,dc=example,dc=invalid \
-	uid=ldapuser,dc=example,dc=invalid \
-	"$password"
+export LDAP_HOST=localhost:3899 \
+	LDAP_BASE_DN=dc=example,dc=invalid \
+	LDAP_BIND_DN=uid=ldapuser,dc=example,dc=invalid \
+	LDAP_BIND_PASSWORD=thepassword \
+	LDAP_TEST_DN=uid=ldapuser,dc=example,dc=invalid \
+	LDAP_TEST_PASSWORD=thepassword
+
+busted tests/test.lua
