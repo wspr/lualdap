@@ -7,4 +7,3 @@ env:
 command:
 - eval "$(luaenv init -)" && luarocks make COVERAGE=1 JUNITXML=1
 - eval "$(luaenv init -)" && make BUILD_VARIANT=$LUAENV_VERSION COVERAGE=1 JUNITXML=1 check
-- eval "$(luaenv init -)" && make clean
