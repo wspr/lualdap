@@ -12,14 +12,27 @@ $(foreach var,$(LDAP_VARS),$(if $(value $(var)),$(info $(var): $(value $(var))),
 LDAP_HOST= $(shell echo "$(LDAP_URI)" | sed -r 's,^.*://([^:/]+).*$$,\1,')
 endif
 
+BUILD_NAME := $(shell $(LUA) -e 'print(jit.version)' 2> /dev/null)
+ifeq ($(BUILD_NAME),)
+BUILD_NAME := $(shell $(LUA) -e 'print(_VERSION)' 2> /dev/null)
+ifeq ($(BUILD_NAME),)
+$(error Unable to determine Lua type)
+endif
+endif
+
+ifdef BUILD_VARIANT
+REPORT_DIR := test-reports/$(BUILD_VARIANT)
+else
+REPORT_DIR := test-reports
+endif
+
 ifdef COVERAGE
 override CFLAGS := $(CFLAGS) -O0 -g --coverage
 override BUSTEDFLAGS := $(BUSTEDFLAGS) --coverage
 endif
 
 ifdef JUNITXML
-JUNITXML_DIR := test-reports
-override BUSTEDFLAGS := $(BUSTEDFLAGS) --output=junit -Xoutput $(JUNITXML_DIR)/report.xml
+override BUSTEDFLAGS := $(BUSTEDFLAGS) --output=junit -Xoutput $(REPORT_DIR)/report.xml
 endif
 
 override CPPFLAGS := -DPACKAGE_STRING="\"$(N) $(V)\"" -DLUA_C89_NUMBERS -I$(LUA_INCDIR) -I$(LDAP_INCDIR) -I$(LBER_INCDIR) -I$(COMPAT_DIR) $(CPPFLAGS)
@@ -39,14 +52,15 @@ install: src/$(LIBNAME)
 	$(INSTALL) src/$(LIBNAME) $(DESTDIR)$(INST_LIBDIR)
 
 clean:
-	$(RM) -r $(OBJS) src/$(LIBNAME) src/*.gcda src/*.gcno src/*.gcov luacov.*.out $(JUNITXML_DIR)
+	$(RM) -r $(OBJS) src/$(LIBNAME) src/*.gcda src/*.gcno src/*.gcov luacov.*.out $(REPORT_DIR)
 
-check:
-ifdef JUNITXML
-	mkdir -p $(JUNITXML_DIR)
-endif
+check: $(REPORT_DIR)
 	env $(foreach var,$(LDAP_VARS) LDAP_HOST,$(var)=$($(var))) busted $(BUSTEDFLAGS) tests/test.lua
 ifdef COVERAGE
 	luacov
-	./utils/codecov.sh
+	mv luacov.*.out $(REPORT_DIR)
+	./utils/codecov.sh -n "$(BUILD_NAME)" -e BUILD_VARIANT
 endif
+
+$(REPORT_DIR):
+	mkdir -p $@
