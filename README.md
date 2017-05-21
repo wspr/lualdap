@@ -1,6 +1,6 @@
 # LuaLDAP
 
-[![CircleCI](https://circleci.com/gh/devurandom/lualdap.svg?style=svg)](https://circleci.com/gh/devurandom/lualdap)
+[![CircleCI](https://circleci.com/gh/devurandom/lualdap.svg?style=shield)](https://circleci.com/gh/devurandom/lualdap)
 [![Build Status](https://travis-ci.org/devurandom/lualdap.svg?branch=master)](https://travis-ci.org/devurandom/lualdap)
 [![codecov](https://codecov.io/gh/devurandom/lualdap/branch/master/graph/badge.svg)](https://codecov.io/gh/devurandom/lualdap)
 
