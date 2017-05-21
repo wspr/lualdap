@@ -11,6 +11,6 @@ curl \
 	--show-error \
 	--location \
 	--output circleci-matrix.sh \
-	https://github.com/michaelcontento/circleci-matrix/raw/master/src/circleci-matrix.sh
+	https://github.com/michaelcontento/circleci-matrix/raw/"$version"/src/circleci-matrix.sh
 
 chmod +x circleci-matrix.sh
