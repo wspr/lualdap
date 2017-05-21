@@ -2,7 +2,7 @@
 
 set -e +o pipefail
 
-VERSION="d642346"
+VERSION="8fda091"
 
 url="https://codecov.io"
 env="$CODECOV_ENV"
@@ -15,6 +15,7 @@ curlargs=""
 curlawsargs=""
 dump="0"
 clean="0"
+curl_s="-s"
 name="$CODECOV_NAME"
 include_cov=""
 exclude_cov=""
@@ -32,6 +33,7 @@ ft_search="1"
 ft_s3="1"
 ft_xcode="1"
 ft_network="1"
+ft_xcodeplist="0"
 
 _git_root=$(git rev-parse --show-toplevel 2>/dev/null || hg root 2>/dev/null || echo $PWD)
 git_root="$_git_root"
@@ -86,8 +88,11 @@ cat << EOF
 
                  -f "path/to/file"     only upload this file
                                        skips searching unless provided patterns below
-                 -f "!*.bar"           ignore all files at pattern *.bar
-                 -f "*.foo"            include all files at pattern *.foo
+
+                 -f '!*.bar'           ignore all files at pattern *.bar
+                 -f '*.foo'            include all files at pattern *.foo
+                 Must use single quotes.
+                 This is non-exclusive, use -s "*.foo" to match specific paths.
 
     -s DIR       Directory to search for coverage reports.
                  Already searches project root and artifact folders.
@@ -118,7 +123,7 @@ cat << EOF
 
                  -F unittests        This upload is only unittests
                  -F integration      This upload is only integration tests
-                 -F ui,chrome        This uplaod is Chrome - UI tests
+                 -F ui,chrome        This upload is Chrome - UI tests
 
     -c           Move discovered coverage reports to the trash
     -Z           Exit with 1 if not successful. Default will Exit with 0
@@ -162,7 +167,7 @@ cat << EOF
     -A curlargs  Extra curl arguments to communicate with AWS.
 
     -- Debugging --
-    -d           Dont upload and dump to stdin
+    -d           Dont upload and dump to stdout
     -K           Remove color from the output
     -v           Verbose mode
 
@@ -349,6 +354,7 @@ $OPTARG"
         ;;
       "v")
         set -x
+        curl_s=""
         ;;
       "x")
         gcov_exe=$OPTARG
@@ -360,6 +366,10 @@ $OPTARG"
         elif [ "$OPTARG" = "coveragepy" ] || [ "$OPTARG" = "py" ];
         then
           ft_coveragepy="0"
+        elif [ "$OPTARG" = "xcodeplist" ];
+        then
+          ft_xcodeplist="1"
+          ft_xcode="0"
         elif [ "$OPTARG" = "fix" ] || [ "$OPTARG" = "fixes" ];
         then
           ft_fix="0"
@@ -403,10 +413,13 @@ then
   # https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project
   # https://wiki.jenkins-ci.org/display/JENKINS/GitHub+pull+request+builder+plugin#GitHubpullrequestbuilderplugin-EnvironmentVariables
   service="jenkins"
-  branch=$([ ! -z "$ghprbSourceBranch" ] && echo "$ghprbSourceBranch" || echo "$GIT_BRANCH")
-  commit=$([ ! -z "$ghprbActualCommit" ] && echo "$ghprbActualCommit" || echo "$GIT_COMMIT")
+  branch=$([ ! -z "$ghprbSourceBranch" ] && echo "$ghprbSourceBranch" || \
+           [ ! -z "$GIT_BRANCH" ] && echo "$GIT_BRANCH" || \
+           [ ! -z "$BRANCH_NAME" ] && echo "$BRANCH_NAME")
+  commit=$([ ! -z "$ghprbActualCommit" ] && echo "$ghprbActualCommit" || \
+           echo "$GIT_COMMIT")
   build="$BUILD_NUMBER"
-  pr="$ghprbPullId"
+  pr="${ghprbPullId:=$CHANGE_ID}"
   build_url=$(urlencode "$BUILD_URL")
 
 elif [ "$CI" = "true" ] && [ "$TRAVIS" = "true" ] && [ "$SHIPPABLE" != "true" ];
@@ -464,7 +477,7 @@ then
   else
     commit="$BUILD_VCS_NUMBER"
   fi
-  remove_addr="$TEAMCITY_BUILD_REPOSITORY"
+  remote_addr="$TEAMCITY_BUILD_REPOSITORY"
 
 elif [ "$CI" = "true" ] && [ "$CIRCLECI" = "true" ];
 then
@@ -564,6 +577,14 @@ then
   job="$DRONE_JOB_NUMBER"
   tag="$DRONE_TAG"
 
+elif [ "$HEROKU_TEST_RUN_BRANCH" != "" ];
+then
+  say "$e==>$x Heroku CI detected."
+  # https://devcenter.heroku.com/articles/heroku-ci#environment-variables
+  service="heroku"
+  branch="$HEROKU_TEST_RUN_BRANCH"
+  build="$HEROKU_TEST_RUN_ID"
+
 elif [ "$CI" = "True" ] && [ "$APPVEYOR" = "True" ];
 then
   say "$e==>$x Appveyor CI detected."
@@ -648,7 +669,7 @@ then
   service="gitlab"
   branch="$CI_BUILD_REF_NAME"
   build="$CI_BUILD_ID"
-  remove_addr="$CI_BUILD_REPO"
+  remote_addr="${CI_BUILD_REPO:-$CI_REPOSITORY_URL}"
   commit="$CI_BUILD_REF"
 
 else
@@ -742,7 +763,7 @@ yaml=$(echo "$yaml" | head -1)
 if [ "$yaml" != "" ];
 then
   say "    ${e}Yaml found at:${x} $yaml"
-  config=$(parse_yaml $yaml || echo '')
+  config=$(parse_yaml "$git_root/$yaml" || echo '')
 
   # TODO validate the yaml here
 
@@ -837,6 +858,23 @@ then
     fi
   fi
 
+  if [ "$ft_xcodeplist" = "1" ] && [ -d "$ddp" ];
+  then
+    say "${e}==>${x} Processing Xcode plists"
+    plists_files=$(find "$ddp" -name '*.xccoverage' 2>/dev/null || echo '')
+    if [ "$plists_files" != "" ];
+    then
+      while read -r plist;
+      do
+        if [ "$plist" != "" ];
+        then
+          say "    ${g}Found${x} plist file at $plist"
+          plutil -convert xml1 -o "$(basename "$plist").plist" -- $plist
+        fi
+      done <<< "$plists_files"
+    fi
+  fi
+
   # Gcov Coverage
   if [ "$ft_gcov" = "1" ];
   then
@@ -922,6 +960,7 @@ $PWD/coverage.xml"
                     -not -name 'coverage-summary.json' \
                     -not -name 'phpunit-code-coverage.xml' \
                     -not -name 'remapInstanbul.coverage*.json' \
+                    -not -name 'phpunit-coverage.xml' \
                     -not -name '*codecov.yml' \
                     -not -name '*.serialized' \
                     -not -name '.coverage*' \
@@ -929,7 +968,14 @@ $PWD/coverage.xml"
                     -not -name '*.sh' \
                     -not -name '*.bat' \
                     -not -name '*.ps1' \
+                    -not -name '*.cmake' \
+                    -not -name '*.dox' \
+                    -not -name '*.ec' \
                     -not -name '*.rst' \
+                    -not -name '*.h' \
+                    -not -name '*.scss' \
+                    -not -name '*.o' \
+                    -not -name '*.proto' \
                     -not -name '*.sbt' \
                     -not -name '*.xcoverage.*' \
                     -not -name '*.gz' \
@@ -1076,9 +1122,10 @@ then
 fi
 
 upload_file=`mktemp /tmp/codecov.XXXXXX`
+adjustments_file=`mktemp /tmp/codecov.adjustments.XXXXXX`
 
 cleanup() {
-    rm -f $upload_file
+    rm -f $upload_file $adjustments_file
 }
 
 trap cleanup INT ABRT TERM
@@ -1102,8 +1149,12 @@ fi
 
 if [ "$ft_network" == "1" ];
 then
-  echo "$network
-<<<<<< network" >> $upload_file
+  i="woff|eot|otf"  # fonts
+  i="$i|gif|png|jpg|jpeg|psd"  # images
+  i="$i|ptt|pptx|numbers|pages|md|txt|xlsx|docx|doc|pdf"  # docs
+  i="$i|yml|yaml|.gitignore"  # supporting docs
+  echo "$network" | grep -vwE "($i)$" >> $upload_file
+  echo "<<<<<< network" >> $upload_file
 fi
 
 fr=0
@@ -1149,89 +1200,154 @@ if [ "$ft_fix" = "1" ];
 then
   say "${e}==>${x} Appending adjustments"
   say "    ${b}http://docs.codecov.io/docs/fixing-reports${x}"
-  adjustments=""
+
+  empty_line='^[[:space:]]*$'
+  # //
+  syntax_comment='^[[:space:]]*//.*'
+  # /* or */
+  syntax_comment_block='^[[:space:]]*(\/\*|\*\/)[[:space:]]*$'
+  # { or }
+  syntax_bracket='^[[:space:]]*[\{\}][[:space:]]*(//.*)?$'
+  # [ or ]
+  syntax_list='^[[:space:]]*[][][[:space:]]*(//.*)?$'
+
+  skip_dirs="-not -path '*/$bower_components/*' \
+             -not -path '*/node_modules/*'"
+
+  cut_and_join() {
+    awk 'BEGIN { FS=":" }
+         $3 ~ /\/\*/ || $3 ~ /\*\// { print $0 ; next }
+         $1!=key { if (key!="") print out ; key=$1 ; out=$1":"$2 ; next }
+         { out=out","$2 }
+         END { print out }' 2>/dev/null
+  }
 
   if echo "$network" | grep -m1 '.kt$' 1>/dev/null;
   then
     # skip brackets and comments
-    adjustments="$adjustments
-$(find "$git_root" -type f -name '*.kt' -exec grep -nIH '^[[:space:]]*}$' {} \; | cut -f1-2 -d: 2>/dev/null || echo '')
-$(find "$git_root" -type f -name '*.kt' -exec grep -nIH '^/\*' {} \; | cut -f1-2 -d: 2>/dev/null || echo '')"
+    find "$git_root" -type f \
+                     -name '*.kt' \
+                     -exec \
+      grep -nIHE -e $syntax_bracket \
+                 -e $syntax_comment_block {} \; \
+      | cut_and_join \
+      >> $adjustments_file \
+      || echo ''
+
+    # last line in file
+    find "$git_root" -type f \
+                     -name '*.kt' -exec \
+      wc -l {} \; \
+      | while read l; do echo "EOF: $l"; done \
+      2>/dev/null \
+      >> $adjustments_file \
+      || echo ''
+
   fi
 
   if echo "$network" | grep -m1 '.go$' 1>/dev/null;
   then
     # skip empty lines, comments, and brackets
-    adjustments="$adjustments
-$(find "$git_root" -type f -not -path '*/vendor/*' -name '*.go' -exec grep -nIH \
-      -e '^[[:space:]]*$' \
-      -e '^[[:space:]]*//.*' \
-      -e '^[[:space:]]*/\*' \
-      -e '^[[:space:]]*\*/' \
-      -e '^[[:space:]]*}$' \
-      {} \; | cut -f1-2 -d: 2>/dev/null || echo '')"
+    find "$git_root" -type f \
+                     -not -path '*/vendor/*' \
+                     -name '*.go' \
+                     -exec \
+      grep -nIHE \
+           -e $empty_line \
+           -e $syntax_comment \
+           -e $syntax_comment_block \
+           -e $syntax_bracket \
+           {} \; \
+      | cut_and_join \
+      >> $adjustments_file \
+      || echo ''
   fi
 
   if echo "$network" | grep -m1 '.jsx$' 1>/dev/null;
   then
     # skip empty lines, comments, and brackets
-    adjustments="$adjustments
-$(find "$git_root" -type f -name '*.jsx' -exec grep -nIH \
-      -e '^[[:space:]]*$' \
-      -e '^[[:space:]]*//.*' \
-      -e '^[[:space:]]*/\*' \
-      -e '^[[:space:]]*\*/' \
-      -e '^[[:space:]]*}$' \
-      {} \; | cut -f1-2 -d: 2>/dev/null || echo '')"
+    find "$git_root" -type f \
+                     -name '*.jsx' \
+                     $skip_dirs \
+                     -exec \
+      grep -nIHE \
+           -e $empty_line \
+           -e $syntax_comment \
+           -e $syntax_bracket \
+           {} \; \
+      | cut_and_join \
+      >> $adjustments_file \
+      || echo ''
   fi
 
   if echo "$network" | grep -m1 '.php$' 1>/dev/null;
   then
     # skip empty lines, comments, and brackets
-    adjustments="$adjustments
-$(find "$git_root" -type f -not -path '*/vendor/*' -name '*.php' -exec grep -nIH \
-      -e '^[[:space:]]*[\{\}\\[][[:space:]]*$' \
-      -e '^[[:space:]]*);[[:space:]]*$' \
-      -e '^[[:space:]]*][[:space:]]*$' \
-      {} \; | cut -f1-2 -d: 2>/dev/null || echo '')"
+    find "$git_root" -type f \
+                     -not -path '*/vendor/*' \
+                     -name '*.php' \
+                     -exec \
+      grep -nIHE \
+           -e $syntax_list \
+           -e $syntax_bracket \
+           -e '^[[:space:]]*\);[[:space:]]*(//.*)?$' \
+           {} \; \
+      | cut_and_join \
+      >> $adjustments_file \
+      || echo ''
   fi
 
   if echo "$network" | grep -m1 '\(.cpp\|.h\|.cxx\|.c\|.hpp\|.m\)$' 1>/dev/null;
   then
     # skip brackets
-    adjustments="$adjustments
-$(find "$git_root" -type f \( -name '*.h' -or -name '*.cpp' -or -name '*.cxx' -or -name '*.m' -or -name '*.c' -or -name '*.hpp' \) -exec grep -nIH '^[[:space:]]*}' {} \; | cut -f1-2 -d: 2>/dev/null || echo '')"
+    find "$git_root" -type f \
+                     $skip_dirs \
+         \( \
+           -name '*.h' \
+           -or -name '*.cpp' \
+           -or -name '*.cxx' \
+           -or -name '*.m' \
+           -or -name '*.c' \
+           -or -name '*.hpp' \
+         \) -exec \
+      grep -nIHE \
+           -e $empty_line \
+           -e $syntax_bracket \
+           -e '// LCOV_EXCL' \
+           {} \; \
+      | cut_and_join \
+      >> $adjustments_file \
+      || echo ''
+
+    # skip brackets
+    find "$git_root" -type f \
+                     $skip_dirs \
+         \( \
+           -name '*.h' \
+           -or -name '*.cpp' \
+           -or -name '*.cxx' \
+           -or -name '*.m' \
+           -or -name '*.c' \
+           -or -name '*.hpp' \
+         \) -exec \
+      grep -nIH '// LCOV_EXCL' \
+           {} \; \
+      >> $adjustments_file \
+      || echo ''
+
   fi
 
-  # join files into single line
-  found=$(echo "$adjustments" | wc -l | tr -d ' ')
-  adjustments=$(echo "$adjustments" | awk 'BEGIN { FS=":" }
-                                           $1!=key { if (key!="") print out ; key=$1 ; out=$0 ; next }
-                                           { out=out","$2 }
-                                           END { print out }')
+  found=$(cat $adjustments_file | tr -d ' ')
 
-  if echo "$network" | grep -m1 '\(.cpp\|.h\|.cxx\|.c\|.hpp\|.m\)$' 1>/dev/null;
+  if [ "$found" != "" ];
   then
-    # skip LCOV_EXCL
-    adjustments="$adjustments
-$(find "$git_root" -type f \( -name '*.h' -or -name '*.cpp' -or -name '*.cxx' -or -name '*.m' -or -name '*.c' -or -name '*.hpp' \) -exec grep -nIH '// LCOV_EXCL' {} \; 2>/dev/null || echo '')"
-  fi
-
-  if echo "$network" | grep -m1 '.kt$' 1>/dev/null;
-  then
-    # last line in file
-    adjustments="$adjustments
-$(find "$git_root" -type f -name '*.kt' -exec wc -l {} \; | while read l; do echo "EOF: $l"; done 2>/dev/null || echo '')"
-  fi
-
-  if [ "$found" != "1" ];
-  then
-    say "    ${g}+${x} Found $found adjustments"
-    echo "# path=fixes
-$adjustments
-<<<<<< EOF" >> $upload_file
+    say "    ${g}+${x} Found adjustments"
+    echo "# path=fixes" >> $upload_file
+    cat $adjustments_file >> $upload_file
+    echo "<<<<<< EOF" >> $upload_file
+    rm -rf $adjustments_file
   else
-    say "    ${e}->${x} Found 0 adjustments"
+    say "    ${e}->${x} No adjustments found"
   fi
 fi
 
@@ -1239,10 +1355,10 @@ if [ "$url_o" != "" ];
 then
   url="$url_o"
 fi
-# trim whitespace from query
 
 if [ "$dump" != "0" ];
 then
+  # trim whitespace from query
   echo "$url/upload/v4?$(echo "package=bash-$VERSION&token=$token&$query" | tr -d ' ')"
   cat $upload_file
 else
@@ -1257,33 +1373,40 @@ else
 
   if [ "$ft_s3" = "1" ];
   then
-    say "    ${e}->${x} Pinging Codecov"
-    res=$(curl -sX POST $curlargs $cacert "$url/upload/v4?$query" -H 'Accept: text/plain' || true)
-    # a good replay is "https://codecov.io" + "\n" + "https://codecov.s3.amazonaws.com/..."
-    status=$(echo "$res" | head -1 | grep 'HTTP ' | cut -d' ' -f2)
-    if [ "$status" = "" ];
-    then
-      s3target=$(echo "$res" | sed -n 2p)
-      say "    ${e}->${x} Uploading to S3 $(echo "$s3target" | cut -c1-32)"
-      s3=$(curl -fisX PUT $curlawsargs \
-                --data-binary @$upload_file \
-                -H 'Content-Type: text/plain' \
-                -H 'x-amz-acl: public-read' \
-                -H 'x-amz-storage-class: REDUCED_REDUNDANCY' \
-                "$s3target" || true)
-      if [ "$s3" != "" ];
+    i="0"
+    while [ $i -lt 4 ]
+    do
+      i=$[$i+1]
+      say "    ${e}->${x} Pinging Codecov"
+      res=$(curl $curl_s -X POST $curlargs $cacert "$url/upload/v4?$query" -H 'Accept: text/plain' || true)
+      # a good replay is "https://codecov.io" + "\n" + "https://codecov.s3.amazonaws.com/..."
+      status=$(echo "$res" | head -1 | grep 'HTTP ' | cut -d' ' -f2)
+      if [ "$status" = "" ];
       then
-        say "    ${g}->${x} View reports at ${b}$(echo "$res" | sed -n 1p)${x}"
-        exit 0
-      else
-        say "    ${r}X>${x} Failed to upload to S3"
+        s3target=$(echo "$res" | sed -n 2p)
+        say "    ${e}->${x} Uploading to S3 $(echo "$s3target" | cut -c1-32)"
+        s3=$(curl $curl_s -fiX PUT $curlawsargs \
+                  --data-binary @$upload_file \
+                  -H 'Content-Type: text/plain' \
+                  -H 'x-amz-acl: public-read' \
+                  -H 'x-amz-storage-class: REDUCED_REDUNDANCY' \
+                  "$s3target" || true)
+        if [ "$s3" != "" ];
+        then
+          say "    ${g}->${x} View reports at ${b}$(echo "$res" | sed -n 1p)${x}"
+          exit 0
+        else
+          say "    ${r}X>${x} Failed to upload to S3"
+        fi
+      elif [ "$status" = "400" ];
+      then
+          # 400 Error
+          say "${g}${res}${x}"
+          exit ${exit_with}
       fi
-    elif [ "$status" = "400" ];
-    then
-        # 400 Error
-        say "${g}${res}${x}"
-        exit ${exit_with}
-    fi
+      say "    ${e}->${x} Sleeping for 30s and trying again..."
+      sleep 30
+    done
   fi
 
   say "    ${e}->${x} Uploading to Codecov"
@@ -1292,7 +1415,7 @@ else
   do
     i=$[$i+1]
 
-    res=$(curl -sX POST $curlargs $cacert --data-binary @$upload_file "$url/upload/v2?$query" -H 'Accept: text/plain' || echo 'HTTP 500')
+    res=$(curl $curl_s -X POST $curlargs $cacert --data-binary @$upload_file "$url/upload/v2?$query" -H 'Accept: text/plain' || echo 'HTTP 500')
     # HTTP 200
     # http://....
     status=$(echo "$res" | head -1 | cut -d' ' -f2)
@@ -1303,8 +1426,8 @@ else
 
     elif [ "${status:0:1}" = "5" ];
     then
-      say "    ${e}->${x} Sleeping for 10s and trying again..."
-      sleep 10
+      say "    ${e}->${x} Sleeping for 30s and trying again..."
+      sleep 30
 
     else
       say "    ${g}${res}${x}"
