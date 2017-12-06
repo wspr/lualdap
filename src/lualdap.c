@@ -806,8 +806,7 @@ static void create_search (lua_State *L, int conn_index, int msgid) {
 ** Fill in the attrs array, according to the attrs parameter.
 */
 static int get_attrs_param (lua_State *L, char *attrs[]) {
-	lua_pushstring (L, "attrs");
-	lua_gettable (L, 2);
+	lua_getfield(L, 2, "attrs");
 	if (lua_isstring (L, -1)) {
 		attrs[0] = (char *)lua_tostring (L, -1);
 		attrs[1] = NULL;
