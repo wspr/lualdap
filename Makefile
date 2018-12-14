@@ -12,14 +12,6 @@ $(foreach var,$(LDAP_VARS),$(if $(value $(var)),$(info $(var): $(value $(var))),
 LDAP_HOST= $(shell echo "$(LDAP_URI)" | sed -r 's,^.*://([^:/]+).*$$,\1,')
 endif
 
-BUILD_NAME := $(shell $(LUA) -e 'print(jit.version)' 2> /dev/null)
-ifeq ($(BUILD_NAME),)
-BUILD_NAME := $(shell $(LUA) -e 'print(_VERSION)' 2> /dev/null)
-ifeq ($(BUILD_NAME),)
-$(error Unable to determine Lua type)
-endif
-endif
-
 ifdef BUILD_VARIANT
 REPORT_DIR := test-reports/$(BUILD_VARIANT)
 else
@@ -59,7 +51,6 @@ check: $(REPORT_DIR)
 ifdef COVERAGE
 	luacov
 	mv luacov.*.out $(REPORT_DIR)
-	./utils/codecov.sh -n "$(BUILD_NAME)" -e BUILD_VARIANT
 endif
 
 $(REPORT_DIR):

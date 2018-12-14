@@ -1,9 +1,0 @@
-env:
-- LUAENV_VERSION=5.1.5
-- LUAENV_VERSION=5.2.4
-- LUAENV_VERSION=5.3.3
-- LUAENV_VERSION=luajit-2.0.4
-- LUAENV_VERSION=luajit-2.1.0-beta2
-command:
-- eval "$(luaenv init -)" && luarocks make COVERAGE=1 JUNITXML=1
-- eval "$(luaenv init -)" && make BUILD_VARIANT=$LUAENV_VERSION COVERAGE=1 JUNITXML=1 check

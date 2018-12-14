@@ -1,6 +1,12 @@
-version: 2
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.1
 jobs:
-  build:
+  build_and_test:
+    description: "Build and test for a specific Lua version"
+    parameters:
+      version:
+        type: string
     working_directory: /lualdap
     docker:
     - image: quay.io/devurandom/lua-dev:debian8.7-6
@@ -16,7 +22,37 @@ jobs:
         name: Prime and test LDAP DB
         command: ./tests/setup.sh
     - run:
-        name: Run matrix build
-        command: ./utils/circleci-matrix.sh --config .circleci/matrix.yml
+        name: "Build"
+        environment:
+        - LUAENV_VERSION: <<parameters.version>>
+        command: eval "$(luaenv init -)" && luarocks make COVERAGE=1 JUNITXML=1
+    - run:
+        name: "Test"
+        environment:
+        - LUAENV_VERSION: <<parameters.version>>
+        command: eval "$(luaenv init -)" && make BUILD_VARIANT=$LUAENV_VERSION COVERAGE=1 JUNITXML=1 check
+    - codecov/upload:
+        file: "*.gcov"
+        flags: default
+        upload_name: <<parameters.version>>
     - store_test_results:
         path: test-reports/
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+    - build_and_test:
+        name: lua-5.1.5
+        version: 5.1.5
+    - build_and_test:
+        name: lua-5.2.4
+        version: 5.2.4
+    - build_and_test:
+        name: lua-5.3.3
+        version: 5.3.3
+    - build_and_test:
+        name: luajit-2.0.4
+        version: luajit-2.0.4
+    - build_and_test:
+        name: luajit-2.1.0-beta2
+        version: luajit-2.1.0-beta2
