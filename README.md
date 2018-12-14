@@ -1,7 +1,6 @@
 # LuaLDAP
 
 [![CircleCI](https://circleci.com/gh/lualdap/lualdap.svg?style=shield)](https://circleci.com/gh/lualdap/lualdap)
-[![Build Status](https://travis-ci.org/lualdap/lualdap.svg?branch=master)](https://travis-ci.org/lualdap/lualdap)
 [![codecov](https://codecov.io/gh/lualdap/lualdap/branch/master/graph/badge.svg)](https://codecov.io/gh/lualdap/lualdap)
 
 LuaLDAP is a simple interface from Lua to an LDAP client, in fact it is a bind to
