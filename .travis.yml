@@ -15,6 +15,6 @@ before_install:
 install:
   - sudo apt-get install slapd
   - luarocks install busted 2.0.rc13-0
-  - luarocks make
+  - luarocks make COVERAGE=1 JUNITXML=1
 script:
   - LUA=lua tests/run-tests.sh
