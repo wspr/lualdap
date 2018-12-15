@@ -1,0 +1,2 @@
+ignore:
+- "src/compat-5.3.[ch]"
