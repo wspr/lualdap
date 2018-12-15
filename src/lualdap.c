@@ -23,12 +23,8 @@
 #include <lua.h>
 #include <lauxlib.h>
 
-#if LUA_VERSION_NUM < 502
-/* lua_rawlen: Not entirely correct, but should work anyway */
-#  define lua_rawlen lua_objlen
-#  define luaL_newlib(L,l) (lua_newtable(L), luaL_register(L,NULL,l))
-#  define luaL_setfuncs(L,l,n) (assert(n==0), luaL_register(L,NULL,l))
-#endif
+#include "compat-5.3.h"
+
 
 #ifdef WINLDAPAPI
 #define timeval l_timeval
