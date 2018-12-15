@@ -17,7 +17,10 @@ jobs:
         name: Install build / test dependencies
         command: |
           apt -y update
-          apt -y install libldap2-dev ldap-utils
+          apt -y install libldap2-dev ldap-utils netcat
+    - run:
+        name: "Wait for OpenLDAP to spin up"
+        command: while ! nc -z localhost 389 ; do sleep 1 ; done
     - run:
         name: Prime and test LDAP DB
         command: ./tests/setup.sh
