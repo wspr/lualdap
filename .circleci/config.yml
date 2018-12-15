@@ -9,7 +9,7 @@ jobs:
         type: string
     working_directory: /lualdap
     docker:
-    - image: quay.io/devurandom/lua-dev:debian8.7-6
+    - image: quay.io/devurandom/lua-dev:debian9.6-1@sha256:9a69efdc28b97354fe9ea3c174473ddf906f8307d3c8b9fd4cf3ddc8fc218528
     - image: docker.io/openshift/openldap-2441-centos7
     steps:
     - checkout
@@ -48,11 +48,11 @@ workflows:
         name: lua-5.2.4
         version: 5.2.4
     - build_and_test:
-        name: lua-5.3.3
-        version: 5.3.3
+        name: lua-5.3.5
+        version: 5.3.5
     - build_and_test:
-        name: luajit-2.0.4
-        version: luajit-2.0.4
+        name: luajit-2.0.5
+        version: luajit-2.0.5
     - build_and_test:
-        name: luajit-2.1.0-beta2
-        version: luajit-2.1.0-beta2
+        name: luajit-2.1.0-beta3
+        version: luajit-2.1.0-beta3
