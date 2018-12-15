@@ -10,7 +10,7 @@ jobs:
     working_directory: /lualdap
     docker:
     - image: quay.io/devurandom/lua-dev:debian9.6-1@sha256:9a69efdc28b97354fe9ea3c174473ddf906f8307d3c8b9fd4cf3ddc8fc218528
-    - image: docker.io/openshift/openldap-2441-centos7
+    - image: docker.io/openshift/openldap-2441-centos7@sha256:b5619d4de8efec7973dbd280eb2cc462ebeb8ae6e457acef4b743b7374dd600d
     steps:
     - checkout
     - run:
