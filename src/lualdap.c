@@ -1007,7 +1007,6 @@ static int lualdap_open_simple (lua_State *L) {
 	conn_data *conn = (conn_data *)lua_newuserdata (L, sizeof(conn_data));
 #if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
 	struct berval *cred = NULL;
-	char *host_with_schema = NULL;
 #endif
 	int err;
 
@@ -1015,12 +1014,16 @@ static int lualdap_open_simple (lua_State *L) {
 	lualdap_setmeta (L, LUALDAP_CONNECTION_METATABLE);
 	conn->version = 0;
 #if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
-	host_with_schema = malloc(strlen(host) + 8);
-	strcpy(host_with_schema, "ldap://");
-	strcat(host_with_schema, host);
-	err = ldap_initialize(&conn->ld, host_with_schema);
-	free(host_with_schema);
-	host_with_schema = NULL;
+	if (strstr(host, "://") != NULL) {
+		err = ldap_initialize(&conn->ld, host);
+	} else {
+		char *host_with_schema = malloc(strlen(host) + 8);
+		strcpy(host_with_schema, "ldap://");
+		strcat(host_with_schema, host);
+		err = ldap_initialize(&conn->ld, host_with_schema);
+		free(host_with_schema);
+		host_with_schema = NULL;
+	}
 	if (err != LDAP_SUCCESS)
 #else
 	conn->ld = ldap_init (host, LDAP_PORT);
