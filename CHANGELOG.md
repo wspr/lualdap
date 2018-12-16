@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * Lua 5.3 compatibility
   - Backwards compatibility using Kepler Project's [lua-compat-5.3](https://github.com/keplerproject/lua-compat-5.3/)
-* Support specifying a URI in hostname argument to open_simple()
+* Support specifying a URI in hostname argument to `open_simple()`
 
 ### Changed
 * Switch to [busted](http://olivinelabs.com/busted/) unit testing framework
