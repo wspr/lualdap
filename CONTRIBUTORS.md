@@ -1,14 +1,14 @@
-LuaLDAP was released originally by [Kepler Project](http://www.keplerproject.org/lualdap/) but the URL no longer responds
+LuaLDAP was originally created by [Kepler Project](http://www.keplerproject.org/).
+A CVS-to-Git conversion was done by [LuaForge](http://luaforge.net/) from [their project](http://luaforge.net/projects/lualdap/) to [a GitHub repository](https://github.com/luaforge/lualdap).
+From there various members of the community took over and curated fixes and improvements in a new [repository under the LuaLDAP GitHub organisation](https://github.com/lualdap/lualdap).
 
-A CVS to Git conversion done by [LuaForge](http://luaforge.net/projects/lualdap/) pointing at [Github](https://github.com/luaforge/lualdap) as the source
-A note was added to the project that if you were the maintainer then send them an email to luaforge@gmail.com to reroot it.
+Significant contributions were made by (in order of appearance):
 
-Significant contributions were made by:
-
- * [Matthew Wild](https://github.com/mwild1) - Cleanup and LDAP API 2.3 update
- * [Dennis Schridde](https://github.com/devurandom) - Cleanup and LDAP API 2.3 update
- * [Vadim A. Misbakh-Soloviov](https://github.com/msva) - Assert fix
- * Michael Bienia, Micah Gersten <micahg@ubuntu.com>, Luca Capello <luca@pca.it> - https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=722175
- * [John Regan](https://github.com/jprjr) - initial Rockspec and apply [Debian bugfix](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=722175)
- * [Brett Delle Grazie](https://github.com/bdellegrazie) - application of [Prosody](http://prosody.im) [patch](http://prosody.im/patches/lualdap.patch), documentation updates
- * [Jakub Jirutka](https://github.com/jirutka) - Segfault and Iterator fixes, Travis CI configuration
+ * [Matthew Wild](https://github.com/mwild1) <mwild1@gmail.com>: Bugfixes; curation of community patches
+ * [Dennis Schridde](https://github.com/devurandom) <devurandom@gmx.net>: Lua 5.1, 5.2, 5.3 compatibility; OpenLDAP 2.3 compatibility; initial CircleCI and Codecov setup; bugfixes; curation of community patches
+ * [Vadim A. Misbakh-Soloviov](https://github.com/msva) <mva@mva.name>: Bugfix
+ * Michael Bienia <geser@ubuntu.com>, Micah Gersten <micahg@ubuntu.com>, Luca Capello <luca@pca.it>: [Bugfix for Debian](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=722175)
+ * [John Regan](https://github.com/jprjr) <john@jrjrtech.com>: Initial Rockspec
+ * [Dan Callaghan](https://github.com/danc86) <djc@djc.id.au>: Initial test harness using a live OpenLDAP server; bugfixes
+ * [Brett Delle Grazie](https://github.com/bdellegrazie) <brett.dellegrazie@indigoblue.co.uk>: Documentation updates; curation of community patches
+ * [Jakub Jirutka](https://github.com/jirutka) <jakub@jirutka.cz>: Initial Travis CI setup; bugfixes
