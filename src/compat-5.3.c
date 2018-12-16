@@ -28,8 +28,9 @@
 #endif /* VC++ _fsopen for share-allowed file read */
 
 #ifndef COMPAT53_HAVE_STRERROR_R
-#  if defined(__GLIBC__) || defined(_POSIX_VERSION) || defined(__APPLE__) || \
-      (!defined (__MINGW32__) && defined(__GNUC__) && (__GNUC__ < 6))
+#  if (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L) || \
+      (defined(_XOPEN_SOURCE) && _XOPEN_SOURCE >= 600) || \
+      defined(__APPLE__)
 #    define COMPAT53_HAVE_STRERROR_R 1
 #  else /* none of the defines matched: define to 0 */
 #    define COMPAT53_HAVE_STRERROR_R 0
@@ -448,7 +449,7 @@ static const char *compat53_reader (lua_State *L, void *ud, size_t *size) {
 
 COMPAT53_API int lua_load (lua_State *L, lua_Reader reader, void *data, const char *source, const char *mode) {
   int status = LUA_OK;
-  compat53_reader_data compat53_data = { NULL, NULL, 1, 0, 0 };
+  compat53_reader_data compat53_data = { 0, NULL, 1, 0, 0 };
   compat53_data.reader = reader;
   compat53_data.ud = data;
   compat53_data.peeked_data = reader(L, data, &(compat53_data.peeked_data_size));
