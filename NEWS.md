@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.2.4-rc1] - 2018-12-22
 ### Added
 * Lua 5.3 compatibility
   - Backwards compatibility using Kepler Project's [lua-compat-5.3](https://github.com/keplerproject/lua-compat-5.3/)
@@ -20,4 +20,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * C89 compatibility
 * Fix two credentials-related segfaults in `open_simple()`
 
-[Unreleased]: https://github.com/lualdap/lualdap/compare/v1.2.3...HEAD
+[1.2.4-rc1]: https://github.com/lualdap/lualdap/compare/v1.2.3...v1.2.4-rc1

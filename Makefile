@@ -1,6 +1,6 @@
 N= LuaLDAP
 T= lualdap
-V= 1.2.3
+V= 1.2.4-rc1
 CONFIG= ./config
 
 include $(CONFIG)
