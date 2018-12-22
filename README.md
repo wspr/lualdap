@@ -16,7 +16,7 @@ LuaLDAP is free software and uses the same license as Lua 5.1.
 
 # Dependencies
 
-Current version is 1.2.3. It was developed for both Lua 5.1 and Lua 5.2,
+Current version is 1.2.3. It was developed for Lua 5.1, 5.2 and 5.3,
 and both OpenLDAP 2.1 or newer and ADSI.
 
 Files in the distribution:
