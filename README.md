@@ -31,7 +31,7 @@ Files in the distribution:
     Makefile.win    -- Makefile for Windows systens with MS Visual C 8 (unmaintained)
     config.win      -- Configurations to build on Windows systems (unmaintained)
     README.md       -- This file
-    CHANGELOG.md    -- News and release notes
+    NEWS.md         -- News and release notes
     CONTRIBUTORS.md -- Who contributed what
     LICENSE.md      -- MIT License reference
 
