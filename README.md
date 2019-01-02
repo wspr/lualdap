@@ -4,20 +4,18 @@
 [![codecov](https://codecov.io/gh/lualdap/lualdap/branch/master/graph/badge.svg)](https://codecov.io/gh/lualdap/lualdap)
 
 LuaLDAP is a simple interface from Lua to an LDAP client, in fact it is a bind to
-OpenLDAP or to Active Directory Service Interfaces (ADSI). It enables a Lua program to:
+OpenLDAP or to Active Directory Service Interfaces (ADSI).  It enables a Lua program to:
 
 * Connect to an LDAP server;
 * Execute any operation (search, add, compare, delete, modify and rename);
 * Retrieve entries and references of the search result.
 
-# License
+# Installation
 
-LuaLDAP is free software and uses the same license as Lua 5.1.
-
-# Dependencies
-
-Current version is 1.2.3. It was developed for Lua 5.1, 5.2 and 5.3,
+Current version is 1.2.3.  It was developed for Lua 5.1, 5.2 and 5.3,
 and both OpenLDAP 2.1 or newer and ADSI.
+
+# Source code directory structure
 
 Files in the distribution:
 
@@ -34,5 +32,11 @@ Files in the distribution:
     NEWS.md         -- News and release notes
     CONTRIBUTORS.md -- Who contributed what
     LICENSE.md      -- MIT License reference
+
+# License
+
+LuaLDAP is free software and uses the same license as Lua 5.1.
+
+# Contributors
 
 Please see CONTRIBUTORS for contribution information and documentation on original source.
