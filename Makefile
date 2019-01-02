@@ -1,6 +1,6 @@
 N= LuaLDAP
 T= lualdap
-V= 1.2.4-rc1
+V= 1.2.4
 PACKAGE_STRING=$(N) $(V)
 CONFIG= ./config
 
