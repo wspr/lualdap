@@ -1085,6 +1085,10 @@ int luaopen_lualdap (lua_State *L) {
 	lualdap_createmeta (L);
 	luaL_newlib(L, lualdap);
 	lua_pushvalue(L, -1);
+/*
+   In Lua 5.2 "modules are not expected to set global variables":
+   https://www.lua.org/manual/5.2/manual.html#8.2
+*/
 #if LUA_VERSION_NUM < 502
 	lua_setglobal(L, LUALDAP_TABLENAME);
 #endif
