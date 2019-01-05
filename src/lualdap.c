@@ -1085,7 +1085,9 @@ int luaopen_lualdap (lua_State *L) {
 	lualdap_createmeta (L);
 	luaL_newlib(L, lualdap);
 	lua_pushvalue(L, -1);
+#if LUA_VERSION_NUM < 502
 	lua_setglobal(L, LUALDAP_TABLENAME);
+#endif
 	set_info (L);
 
 	return 1;
