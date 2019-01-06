@@ -1008,37 +1008,28 @@ static int lualdap_open_simple (lua_State *L) {
 	ldap_pchar_t who = (ldap_pchar_t) luaL_optstring (L, 2, NULL);
 	const char *password = luaL_optstring (L, 3, "");
 	int use_tls = lua_toboolean (L, 4);
-	conn_data *conn = (conn_data *)lua_newuserdata (L, sizeof(conn_data));
+	conn_data *conn = NULL;
 #if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
 	struct berval *cred = NULL;
 #endif
-	int err;
+	int err = LDAP_SUCCESS;
 
 	/* Initialize */
-	lualdap_setmeta (L, LUALDAP_CONNECTION_METATABLE);
-	conn->version = 0;
-#if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
-	if (strstr(host, "://") != NULL) {
-		err = ldap_initialize(&conn->ld, host);
+	lua_pushcfunction (L, lualdap_initialize);
+	if (strstr (host, "://") != NULL) {
+		lua_pushvalue (L, 1);
 	} else {
-		char *host_with_schema = malloc(strlen(host) + 8);
-		strcpy(host_with_schema, "ldap://");
-		strcat(host_with_schema, host);
-		err = ldap_initialize(&conn->ld, host_with_schema);
-		free(host_with_schema);
-		host_with_schema = NULL;
+		lua_pushfstring (L, "ldap://%s", host);
 	}
-	if (err != LDAP_SUCCESS)
-#else
-	conn->ld = ldap_init (host, LDAP_PORT);
-	if (conn->ld == NULL)
-#endif
-		return faildirect(L,LUALDAP_PREFIX"Error connecting to server");
-	/* Set protocol version */
-	conn->version = LDAP_VERSION3;
-	if (ldap_set_option (conn->ld, LDAP_OPT_PROTOCOL_VERSION, &conn->version)
-		!= LDAP_OPT_SUCCESS)
-		return faildirect(L, LUALDAP_PREFIX"Error setting LDAP version");
+	lua_call (L, 1, 2);
+	if (lua_isnil (L, -2)) {
+		return 2; /* Pass through in case of errors */
+	}
+	else {
+		lua_pop (L, 1); /* Discard error message of lualdap_initialize */
+		conn = (conn_data *)lua_touserdata (L, -1);
+	}
+
 	/* Use TLS */
 	if (use_tls) {
 		int rc = ldap_start_tls_s (conn->ld, NULL, NULL);
