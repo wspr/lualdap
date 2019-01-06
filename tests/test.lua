@@ -114,7 +114,7 @@ function test_object (obj, objmethods)
 	-- checking existence of object's methods.
 	for i = 1, #objmethods do
 		local method = obj[objmethods[i]]
-		it(objmethods[i].."is a function", function()
+		it(objmethods[i].." is a function", function()
 			assert.is_function(method)
 		end)
 		it("is not acceptable to call the "..objmethods[i].." without 'self'", function()
