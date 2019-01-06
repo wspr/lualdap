@@ -977,10 +977,14 @@ static int lualdap_initialize (lua_State *L) {
 	/* Initialize */
 	lualdap_setmeta (L, LUALDAP_CONNECTION_METATABLE);
 	conn->version = 0;
+#if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
 	err = ldap_initialize (&conn->ld, uri);
 	if (err != LDAP_SUCCESS)
 		return faildirect(L, ldap_err2string(err));
-	
+#else
+#	error Unsupported LDAP library version
+#endif
+
 	/* Set protocol version */
 	conn->version = LDAP_VERSION3;
 	if (ldap_set_option (conn->ld, LDAP_OPT_PROTOCOL_VERSION, &conn->version)

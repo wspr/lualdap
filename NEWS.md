@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 * Fix case in Makefile when install directory does not exist
 
+### Removed
+* Dropped the claim that we support OpenLDAP older than 2.3, which was not true since 3597ac91334dbaa912db391f5e9fd7a15a643686
+
 ## [1.2.5] - 2019-01-06
 ### Changed
 * `CPPFLAGS`, `CFLAGS` and `LDFLAGS` can now be overridden on the `make` command line.  It is not longer necessary to edit the `config` file.
