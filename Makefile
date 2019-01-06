@@ -13,6 +13,11 @@ $(foreach var,$(LDAP_VARS),$(if $(value $(var)),$(info $(var): $(value $(var))),
 LDAP_HOST= $(shell echo "$(LDAP_URI)" | sed -r 's,^.*://([^:/]+).*$$,\1,')
 endif
 
+CFLAGS_WARN := -pedantic -Wall -W -Waggregate-return -Wcast-align -Wmissing-prototypes -Wnested-externs -Wshadow -Wwrite-strings
+
+override CPPFLAGS := -DPACKAGE_STRING="\"$(PACKAGE_STRING)\"" -DLUA_C89_NUMBERS $(CPPFLAGS)
+override CFLAGS := -O2 -fPIC -std=c89 $(CFLAGS_WARN) $(CFLAGS)
+
 ifdef BUILD_VARIANT
 REPORT_DIR := test-reports/$(BUILD_VARIANT)
 else
@@ -28,14 +33,17 @@ ifdef JUNITXML
 override BUSTEDFLAGS := $(BUSTEDFLAGS) --output=junit -Xoutput $(REPORT_DIR)/report.xml
 endif
 
-override CPPFLAGS := -DPACKAGE_STRING="\"$(PACKAGE_STRING)\"" -DLUA_C89_NUMBERS -I$(LUA_INCDIR) -I$(LDAP_INCDIR) -I$(LBER_INCDIR) $(CPPFLAGS)
-
 OBJS= src/lualdap.o
+INCS := -I$(LUA_INCDIR) -I$(LDAP_INCDIR) -I$(LBER_INCDIR)
+LIBS := -L$(LDAP_LIBDIR) $(LDAP_LIB) -L$(LBER_LIBDIR) $(LBER_LIB)
+
+override CPPFLAGS := $(INCS) $(CPPFLAGS)
+override LDFLAGS := $(LIBFLAG) $(LDFLAGS)
 
 LIBNAME=$(T).so
 
 src/$(LIBNAME): $(OBJS)
-	$(CC) $(CFLAGS) $(LIBFLAG) -o src/$(LIBNAME) $(OBJS) -L$(LDAP_LIBDIR) $(LDAP_LIB) -L$(LBER_LIBDIR) $(LBER_LIB)
+	$(CC) $(CFLAGS) -o src/$(LIBNAME) $(LDFLAGS) $(OBJS) $(LIBS)
 
 install: src/$(LIBNAME)
 	$(INSTALL) src/$(LIBNAME) $(DESTDIR)$(INST_LIBDIR)

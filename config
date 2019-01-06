@@ -35,8 +35,6 @@ LIBFLAG = -shared # for Linux
 #LIBFLAG = -bundle -undefined dynamic_lookup # for MacOS X
 
 # Compilation parameters
-WARN= -pedantic -Wall -W -Waggregate-return -Wcast-align -Wmissing-prototypes -Wnested-externs -Wshadow -Wwrite-strings
-CFLAGS= -O2 -fPIC -std=c89 $(WARN)
 CC= gcc
 INSTALL= install
 

@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+* `CPPFLAGS`, `CFLAGS` and `LDFLAGS` can now be overridden on the `make` command line.  It is not longer necessary to edit the `config` file.
+
 ### Removed
 * We no longer export a `lualdap` global variable, in accordance with Lua 5.2 module rules (#8)
   - cf. https://www.lua.org/manual/5.2/manual.html#8.2
