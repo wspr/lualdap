@@ -109,8 +109,9 @@ function test_object (obj, objmethods)
 		assert.is_same("LuaLDAP: you're not allowed to get this metatable",
 			getmetatable(obj))
 	end)
-	-- trying to set metatable.
-	assert.is_false(pcall(setmetatable, ENV, {}))
+	it("cannot set metatable", function()
+		assert.is_false(pcall(setmetatable, ENV, {}))
+	end)
 	-- checking existence of object's methods.
 	for i = 1, #objmethods do
 		local method = obj[objmethods[i]]
@@ -142,11 +143,12 @@ describe("basics", function()
 	it("can close connection", function()
 		assert.is_same(1, ld:close())
 	end)
-	-- trying to close without a connection.
-	assert.is_false(pcall(ld.close))
-	-- trying to close an invalid connection.
-	assert.is_false(pcall(ld.close, io.output()))
-	-- trying to use a closed connection.
+	it("cannot close without a connection", function()
+		assert.is_false(pcall(ld.close))
+	end)
+	it("cannot close an invalid connection", function()
+		assert.is_false(pcall(ld.close, io.output()))
+	end)
 	local _,_,rdn_name,rdn_value = string.find (BASE, DN_PAT)
 	it("is not permitted to use a closed connection", function()
 		assert.is_false(pcall(ld.compare, ld, BASE, rdn_name, rdn_value))
@@ -185,8 +187,10 @@ describe("tests on an existing connection", function()
 ---------------------------------------------------------------------
 describe("compare operation", function()
 	local _,_,rdn_name,rdn_value = string.find (BASE, DN_PAT)
-	assert.message("could not extract RDN name").is_string(rdn_name)
-	assert.message("could not extract RDN value").is_string(rdn_value)
+	it("preparations", function()
+		assert.message("could not extract RDN name").is_string(rdn_name)
+		assert.message("could not extract RDN value").is_string(rdn_value)
+	end)
 	-- comparing against the correct value.
 	it(rdn_name.." = "..rdn_value.." should be true", function()
 		assert.returned_future(true, LD.compare, LD, BASE, rdn_name, rdn_value)
@@ -225,14 +229,20 @@ describe("basic search operation", function()
 		sizelimit = 1,
 		filter = "("..rdn..")",
 	}
-	assert.is_function(iter)
+	it("search returns future", function()
+		assert.is_function(iter)
+	end)
 	collectgarbage()
 	CONN_OK (LD)
-	local dn, entry = iter ()
-	assert.is_string(dn)
-	assert.is_table(entry)
-	collectgarbage()
-	assert.is_function(iter)
+	it("search result iterator returns DN and value", function()
+		local dn, entry = iter ()
+		assert.is_string(dn)
+		assert.is_table(entry)
+	end)
+	it("search result iterator stays healthy after retrieving first result", function()
+		collectgarbage()
+		assert.is_function(iter)
+	end)
 	CONN_OK (LD)
 
 	DN, ENTRY = LD:search {
@@ -242,8 +252,10 @@ describe("basic search operation", function()
 		filter = "("..rdn..")",
 	}()
 	collectgarbage()
-	assert.is_string(DN)
-	assert.is_table(ENTRY)
+	it("can access first search result directly", function()
+		assert.is_string(DN)
+		assert.is_table(ENTRY)
+	end)
 end)
 
 
@@ -256,18 +268,22 @@ describe("add operation", function()
 	local _,_,rdn_name, rdn_value, parent_dn = string.find (DN, DN_PAT)
 	NEW[rdn_name] = rdn_value.."_copy"
 	NEW_DN = string.format ("%s=%s,%s", rdn_name, NEW[rdn_name], parent_dn)
-	-- trying to insert an entry with a wrong connection.
-	assert.is_false(pcall(LD.add, CLOSED_LD, NEW_DN, NEW))
-	-- trying to insert an entry with an invalid connection.
-	assert.is_false(pcall(LD.add, io.output(), NEW_DN, NEW))
-	-- trying to insert an entry with a wrong DN.
-	local wrong_dn = string.format ("%s_x=%s,%s", rdn_name, NEW_DN, parent_dn)
-	--assert2 (nil, LD:add (wrong_dn, NEW))
-	assert.returned_future (nil, LD.add, LD, wrong_dn, NEW)
-	-- trying to insert the clone on the LDAP data base.
-	assert.returned_future(true, LD.add, LD, NEW_DN, NEW)
-	-- trying to reinsert the clone entry on the directory.
-	assert.returned_future(nil, LD.add, LD, NEW_DN, NEW)
+	it("cannot insert an entry with a wrong connection", function()
+		assert.is_false(pcall(LD.add, CLOSED_LD, NEW_DN, NEW))
+	end)
+	it("cannot insert an entry with an invalid connection", function()
+		assert.is_false(pcall(LD.add, io.output(), NEW_DN, NEW))
+	end)
+	it("cannot insert an entry with a wrong DN", function()
+		local wrong_dn = string.format ("%s_x=%s,%s", rdn_name, NEW_DN, parent_dn)
+		assert.returned_future (nil, LD.add, LD, wrong_dn, NEW)
+	end)
+	it("can insert the clone on the LDAP data base", function()
+		assert.returned_future(true, LD.add, LD, NEW_DN, NEW)
+	end)
+	it("cannot reinsert the clone entry on the directory", function()
+		assert.returned_future(nil, LD.add, LD, NEW_DN, NEW)
+	end)
 end)
 
 
@@ -275,26 +291,34 @@ end)
 -- checking modify operation.
 ---------------------------------------------------------------------
 describe("modify operation", function()
-	-- modifying without connection.
-	assert.is_false(pcall (LD.modify, nil, NEW_DN, {}))
-	-- modifying with a closed connection.
-	assert.is_false(pcall (LD.modify, CLOSED_LD, NEW_DN, {}))
-	-- modifying with an invalid userdata.
-	assert.is_false(pcall (LD.modify, io.output(), NEW_DN, {}))
-	-- checking invalid DN.
-	assert.is_false(pcall (LD.modify, LD, {}))
-	-- no modification to apply.
-	assert.returned_future(true, LD.modify, LD, NEW_DN)
-	-- forgotten operation on modifications table.
-	local a_attr, a_value = next (ENTRY)
-	assert.is_false(pcall (LD.modify, LD, NEW_DN, { [a_attr] = "abc"}))
-	-- modifying an unknown entry.
-	local _,_, rdn_name, rdn_value, parent_dn = string.find (NEW_DN, DN_PAT)
-	local new_rdn = rdn_name..'='..rdn_value..'_'
-	local new_dn = string.format ("%s,%s", new_rdn, parent_dn)
-	assert.returned_future(nil, LD.modify, LD, new_dn)
-	-- trying to create an undefined attribute.
-	assert.returned_future(nil, LD.modify, LD, NEW_DN, {'+', unknown_attribute = 'a'})
+	it("cannot modify without connection", function()
+		assert.is_false(pcall (LD.modify, nil, NEW_DN, {}))
+	end)
+	it("cannot modify with a closed connection", function()
+		assert.is_false(pcall (LD.modify, CLOSED_LD, NEW_DN, {}))
+	end)
+	it("cannot modify with an invalid userdata", function()
+		assert.is_false(pcall (LD.modify, io.output(), NEW_DN, {}))
+	end)
+	it("cannot modify invalid DN", function()
+		assert.is_false(pcall (LD.modify, LD, {}))
+	end)
+	it("can apply empty modification", function()
+		assert.returned_future(true, LD.modify, LD, NEW_DN)
+	end)
+	it("cannot modify without operation", function()
+		local a_attr, a_value = next (ENTRY)
+		assert.is_false(pcall (LD.modify, LD, NEW_DN, { [a_attr] = "abc"}))
+	end)
+	it("cannot modify an unknown entry", function()
+		local _,_, rdn_name, rdn_value, parent_dn = string.find (NEW_DN, DN_PAT)
+		local new_rdn = rdn_name..'='..rdn_value..'_'
+		local new_dn = string.format ("%s,%s", new_rdn, parent_dn)
+		assert.returned_future(nil, LD.modify, LD, new_dn)
+	end)
+	it("cannot create an undefined attribute", function()
+		assert.returned_future(nil, LD.modify, LD, NEW_DN, {'+', unknown_attribute = 'a'})
+	end)
 end)
 
 
@@ -319,46 +343,61 @@ describe("advanced search operation", function()
 		sizelimit = 1,
 		filter = "("..rdn..")",
 	}
-	assert.is_function(iter)
-	collectgarbage ()
-	assert.is_function(iter)
-	local dn, entry = iter ()
-	assert.is_string(dn)
-	assert.is_table(entry)
-	collectgarbage ()
-	assert.is_function(iter)
+	it("search returns future", function()
+		assert.is_function(iter)
+	end)
+	it("search result iterator does not misbehave under garbage collection", function()
+		collectgarbage ()
+		assert.is_function(iter)
+	end)
+	it("search result iterator returns DN and value", function()
+		local dn, entry = iter ()
+		assert.is_string(dn)
+		assert.is_table(entry)
+	end)
+	it("search result iterator stays healthy after retrieving first result", function()
+		collectgarbage ()
+		assert.is_function(iter)
+	end)
 	iter = nil
 	collectgarbage ()
 
-	-- checking no search specification.
-	assert.is_false(pcall (LD.search, LD))
-	-- checking invalid scope.
-	assert.is_false(pcall (LD.search, LD, { scope = 'BASE', base = BASE, }))
-	-- checking invalid base.
-	assert.returned_future(nil, LD.search, LD, { base = "invalid", scope = "base", })
-	-- checking filter.
+	it("cannot search without specification", function()
+		assert.is_false(pcall (LD.search, LD))
+	end)
+	it("cannot search with invalid scope", function()
+		assert.is_false(pcall (LD.search, LD, { scope = 'BASE', base = BASE, }))
+	end)
+	it("cannot search with invalid base", function()
+		assert.returned_future(nil, LD.search, LD, { base = "invalid", scope = "base", })
+	end)
 	local _,_, rdn_name, rdn_value, parent_dn = string.find (NEW_DN, DN_PAT)
 	local filter = string.format ("(%s=%s)", rdn_name, rdn_value)
-	assert.is_same(1, count { base = BASE, scope = "subtree", filter = filter, })
-	-- checking sizelimit.
-	assert.is_same(1, count { base = BASE, scope = "subtree", sizelimit = 1, })
-	-- checking attrsonly parameter.
-	for dn, entry in LD:search { base = BASE, scope = "subtree", attrsonly = true, } do
-		for attr, value in pairs (entry) do
-			assert.message("attrsonly failed").is_true(value)
+	it("filter works", function()
+		assert.is_same(1, count { base = BASE, scope = "subtree", filter = filter, })
+	end)
+	it("sizelimit works", function()
+		assert.is_same(1, count { base = BASE, scope = "subtree", sizelimit = 1, })
+	end)
+	it("attrsonly works", function()
+		for dn, entry in LD:search { base = BASE, scope = "subtree", attrsonly = true, } do
+			for attr, value in pairs (entry) do
+				assert.message("attrsonly failed").is_true(value)
+			end
 		end
-	end
-	-- checking reuse of search object.
-	local iter = assert.is_not_nil(LD:search { base = BASE, scope = "base", })
-	assert.is_function(iter)
-	local dn, e1 = iter()
-	assert.is_string(dn)
-	assert.is_table(e1)
-	dn, e1 = iter()
-	assert.is_nil(dn)
-	assert.is_nil(e1)
-	assert.is_false(pcall(iter))
-	iter = nil
+	end)
+	it("reusing search objects is possible", function()
+		local iter = assert.is_not_nil(LD:search { base = BASE, scope = "base", })
+		assert.is_function(iter)
+		local dn, e1 = iter()
+		assert.is_string(dn)
+		assert.is_table(e1)
+		dn, e1 = iter()
+		assert.is_nil(dn)
+		assert.is_nil(e1)
+		assert.is_false(pcall(iter))
+		iter = nil
+	end)
 	-- checking collecting search objects.
 	local dn, entry = LD:search { base = BASE, scope = "base" }()
 	collectgarbage()
@@ -372,20 +411,27 @@ describe("rename operation", function()
 	local _,_, rdn_name, rdn_value, parent_dn = string.find (NEW_DN, DN_PAT)
 	local new_rdn = rdn_name..'='..rdn_value..'_'
 	local new_dn = string.format ("%s,%s", new_rdn, parent_dn)
-	-- trying to rename with no parent.
-	assert.returned_future(true, LD.rename, LD, NEW_DN, new_rdn, nil)
-	-- trying to rename an invalid dn.
-	assert.returned_future(nil, LD.rename, LD, NEW_DN, new_rdn, nil)
-	-- trying to rename with the same parent.
-	assert.returned_future(true, LD.rename, LD, new_dn, rdn_name..'='..rdn_value, parent_dn)
-	-- trying to rename to an inexistent parent.
-	assert.returned_future(nil, LD.rename, LD, NEW_DN, new_rdn, new_dn)
-	-- mal-formed DN.
-	assert.is_false(pcall (LD.rename, LD, ""))
-	-- trying to rename with a closed connection.
-	assert.is_false(pcall (LD.rename, CLOSED_LD, NEW_DN, new_rdn, nil))
-	-- trying to rename with an invalid connection.
-	assert.is_false(pcall (LD.rename, io.output(), NEW_DN, new_rdn, nil))
+	it("cannot rename with no parent", function()
+		assert.returned_future(true, LD.rename, LD, NEW_DN, new_rdn, nil)
+	end)
+	it("cannot rename an invalid dn", function()
+		assert.returned_future(nil, LD.rename, LD, NEW_DN, new_rdn, nil)
+	end)
+	it("can rename with the same parent", function()
+		assert.returned_future(true, LD.rename, LD, new_dn, rdn_name..'='..rdn_value, parent_dn)
+	end)
+	it("cannot rename to an inexistent parent", function()
+		assert.returned_future(nil, LD.rename, LD, NEW_DN, new_rdn, new_dn)
+	end)
+	it("cannot rename with a mal-formed DN", function()
+		assert.is_false(pcall (LD.rename, LD, ""))
+	end)
+	it("cannot rename with a closed connection", function()
+		assert.is_false(pcall (LD.rename, CLOSED_LD, NEW_DN, new_rdn, nil))
+	end)
+	it("cannot rename with an invalid connection", function()
+		assert.is_false(pcall (LD.rename, io.output(), NEW_DN, new_rdn, nil))
+	end)
 end)
 
 
@@ -393,23 +439,21 @@ end)
 -- checking delete operation.
 ---------------------------------------------------------------------
 describe("delete operation", function()
-	-- trying to delete with a closed connection.
-	assert.is_false(pcall (LD.delete, CLOSED_LD, NEW_DN))
-	-- trying to delete with an invalid connection.
-	assert.is_false(pcall (LD.delete, io.output(), NEW_DN))
-	-- trying to delete new entry.
+	it("cannot delete with a closed connection", function()
+		assert.is_false(pcall (LD.delete, CLOSED_LD, NEW_DN))
+	end)
+	it("cannot delete with an invalid connection", function()
+		assert.is_false(pcall (LD.delete, io.output(), NEW_DN))
+	end)
 	it("deleting new entry", function()
 		assert.returned_future(true, LD.delete, LD, NEW_DN)
 	end)
-	-- trying to delete an already deleted entry.
 	it("deleting an already deleted entry", function()
 		assert.returned_future(nil, LD.delete, LD, NEW_DN)
 	end)
-	-- mal-formed DN.
 	it("deleting a mal-formed DN", function()
 		assert.returned_future(nil, LD.delete, LD, "")
 	end)
-	-- no DN.
 	it("deleting a nil DN", function()
 		assert.is_false(pcall(LD.delete, LD))
 	end)
@@ -420,7 +464,9 @@ end)
 -- checking close operation.
 ---------------------------------------------------------------------
 describe("close operation", function()
-	assert.message("couldn't close connection").is_same(1, LD:close())
+	it("can close connection", function()
+		assert.message("couldn't close connection").is_same(1, LD:close())
+	end)
 end)
 
 end)
