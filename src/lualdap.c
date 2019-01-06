@@ -502,6 +502,7 @@ static int lualdap_bind_simple (lua_State *L) {
 	int err;
 #if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
 	struct berval *cred = ber_bvstrdup(password);
+	/* FIXME: According to `man 3 ldap_sasl_bind_s` we should pass `NULL` instead of `who`. */
 	err = ldap_sasl_bind_s (conn->ld, who, LDAP_SASL_SIMPLE, cred, NULL, NULL, NULL);
 	ber_bvfree(cred);
 #else
