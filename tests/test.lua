@@ -283,6 +283,52 @@ end)
 
 
 ---------------------------------------------------------------------
+-- checking advanced search operation.
+---------------------------------------------------------------------
+describe("advanced search operation", function()
+	local _,_,rdn = string.find (WHO, "^([^,]+)%,.*$")
+	CONN_OK (LD)
+	local iter = LD:search {
+		base = BASE,
+		scope = "onelevel",
+		sizelimit = 1,
+		filter = "("..rdn..")",
+	}
+	it("search returns something", function()
+		assert.is_not_nil(iter)
+	end)
+	it("search returns future", function()
+		assert.is_calleable(iter)
+	end)
+	it("search result iterator does not misbehave under garbage collection", function()
+		collectgarbage ()
+		assert.is_calleable(iter)
+	end)
+	it("search result iterator returns DN and value", function()
+		local dn, entry = iter ()
+		assert.is_string(dn)
+		assert.is_table(entry)
+	end)
+	it("search result iterator stays healthy after retrieving first result", function()
+		collectgarbage ()
+		assert.is_calleable(iter)
+	end)
+	iter = nil
+	collectgarbage ()
+
+	it("cannot search without specification", function()
+		assert.is_false(pcall (LD.search, LD))
+	end)
+	it("cannot search with invalid scope", function()
+		assert.is_false(pcall (LD.search, LD, { scope = 'BASE', base = BASE, }))
+	end)
+	it("cannot search with invalid base", function()
+		assert.returned_future(nil, LD.search, LD, { base = "invalid", scope = "base", })
+	end)
+end)
+
+
+---------------------------------------------------------------------
 -- checking add operation.
 ---------------------------------------------------------------------
 describe("add operation", function()
@@ -356,48 +402,9 @@ end
 
 
 ---------------------------------------------------------------------
--- checking advanced search operation.
+-- checking even more advanced search operation.
 ---------------------------------------------------------------------
-describe("advanced search operation", function()
-	local _,_,rdn = string.find (WHO, "^([^,]+)%,.*$")
-	CONN_OK (LD)
-	local iter = LD:search {
-		base = BASE,
-		scope = "onelevel",
-		sizelimit = 1,
-		filter = "("..rdn..")",
-	}
-	it("search returns something", function()
-		assert.is_not_nil(iter)
-	end)
-	it("search returns future", function()
-		assert.is_calleable(iter)
-	end)
-	it("search result iterator does not misbehave under garbage collection", function()
-		collectgarbage ()
-		assert.is_calleable(iter)
-	end)
-	it("search result iterator returns DN and value", function()
-		local dn, entry = iter ()
-		assert.is_string(dn)
-		assert.is_table(entry)
-	end)
-	it("search result iterator stays healthy after retrieving first result", function()
-		collectgarbage ()
-		assert.is_calleable(iter)
-	end)
-	iter = nil
-	collectgarbage ()
-
-	it("cannot search without specification", function()
-		assert.is_false(pcall (LD.search, LD))
-	end)
-	it("cannot search with invalid scope", function()
-		assert.is_false(pcall (LD.search, LD, { scope = 'BASE', base = BASE, }))
-	end)
-	it("cannot search with invalid base", function()
-		assert.returned_future(nil, LD.search, LD, { base = "invalid", scope = "base", })
-	end)
+describe("even more advanced search operation", function()
 	local _,_, rdn_name, rdn_value, parent_dn = string.find (NEW_DN, DN_PAT)
 	local filter = string.format ("(%s=%s)", rdn_name, rdn_value)
 	it("filter works", function()
