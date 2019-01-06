@@ -167,7 +167,7 @@ describe("creating a connection using a hostname", function()
 end)
 
 describe("tests on an existing connection", function()
-	local LD, NEW_DN, DN, ENTRY
+	local LD, CLOSED_LD, NEW_DN, DN, ENTRY
 
 	-- reopen the connection.
 	setup(function()
@@ -177,7 +177,6 @@ describe("tests on an existing connection", function()
 			ok, err = lualdap.open_simple (HOSTNAME, BIND_DN, PASSWORD, false)
 		end
 		LD = assert(ok, err)
-		CLOSED_LD = ld
 		collectgarbage()
 	end)
 
