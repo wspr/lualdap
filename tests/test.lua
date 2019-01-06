@@ -56,6 +56,25 @@ say:set("assertion.returned_future.positive", "Expected call to return a future 
 say:set("assertion.returned_future.negative", "Expected call not to return a future %s:\n%s")
 assert:register("assertion", "returned_future", returned_future, "assertion.returned_future.positive", "assertion.returned_future.negative")
 
+
+local function is_calleable(state, arguments)
+	local f = arguments[1]
+	if type(f) == "function" then
+		return true
+	else
+		local mt = getmetatable(f)
+		if type(mt) == "table" then
+			return mt.__call ~= nil
+		end
+	end
+	return false
+end
+
+say:set_namespace("en")
+say:set("assertion.is_calleable.positive", "Expected calleable object or function, but got:\n%s")
+say:set("assertion.is_calleable.negative", "Expected non-calleable object or non-function, but got:\n%s")
+assert:register("assertion", "is_calleable", is_calleable, "assertion.is_calleable.positive", "assertion.is_calleable.negative")
+
 --
 local DN_PAT = "^([^,=]+)%=([^,]+)%,?(.*)$"
 
@@ -230,7 +249,7 @@ describe("basic search operation", function()
 		filter = "("..rdn..")",
 	}
 	it("search returns future", function()
-		assert.is_function(iter)
+		assert.is_calleable(iter)
 	end)
 	collectgarbage()
 	CONN_OK (LD)
@@ -241,7 +260,7 @@ describe("basic search operation", function()
 	end)
 	it("search result iterator stays healthy after retrieving first result", function()
 		collectgarbage()
-		assert.is_function(iter)
+		assert.is_calleable(iter)
 	end)
 	CONN_OK (LD)
 
@@ -344,11 +363,11 @@ describe("advanced search operation", function()
 		filter = "("..rdn..")",
 	}
 	it("search returns future", function()
-		assert.is_function(iter)
+		assert.is_calleable(iter)
 	end)
 	it("search result iterator does not misbehave under garbage collection", function()
 		collectgarbage ()
-		assert.is_function(iter)
+		assert.is_calleable(iter)
 	end)
 	it("search result iterator returns DN and value", function()
 		local dn, entry = iter ()
@@ -357,7 +376,7 @@ describe("advanced search operation", function()
 	end)
 	it("search result iterator stays healthy after retrieving first result", function()
 		collectgarbage ()
-		assert.is_function(iter)
+		assert.is_calleable(iter)
 	end)
 	iter = nil
 	collectgarbage ()
@@ -388,7 +407,7 @@ describe("advanced search operation", function()
 	end)
 	it("reusing search objects is possible", function()
 		local iter = assert.is_not_nil(LD:search { base = BASE, scope = "base", })
-		assert.is_function(iter)
+		assert.is_calleable(iter)
 		local dn, e1 = iter()
 		assert.is_string(dn)
 		assert.is_table(e1)
