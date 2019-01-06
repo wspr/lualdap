@@ -46,6 +46,7 @@ src/$(LIBNAME): $(OBJS)
 	$(CC) $(CFLAGS) -o src/$(LIBNAME) $(LDFLAGS) $(OBJS) $(LIBS)
 
 install: src/$(LIBNAME)
+	$(INSTALL) -d $(DESTDIR)$(INST_LIBDIR)
 	$(INSTALL) src/$(LIBNAME) $(DESTDIR)$(INST_LIBDIR)
 
 clean:
