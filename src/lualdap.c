@@ -501,19 +501,15 @@ static int lualdap_bind_simple (lua_State *L) {
 	const char *password = luaL_checkstring (L, 3);
 	int err;
 #if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
-	struct berval cred = { 0, NULL };
-	cred.bv_len = strlen(password);
-	cred.bv_val = malloc(cred.bv_len+1);
-	strcpy(cred.bv_val, password);
-	err = ldap_sasl_bind_s (conn->ld, who, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
-	free(cred.bv_val);
-	memset(&cred, 0, sizeof(cred));
+	struct berval *cred = ber_bvstrdup(password);
+	err = ldap_sasl_bind_s (conn->ld, who, LDAP_SASL_SIMPLE, cred, NULL, NULL, NULL);
+	ber_bvfree(cred);
 #else
 	err = ldap_simple_bind_s (conn->ld, who, password);
 #endif
 	if (err != LDAP_SUCCESS)
 		return faildirect (L, ldap_err2string (err));
-	
+
 	lua_pushboolean (L, 1);
 	return 1;
 }
