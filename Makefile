@@ -28,13 +28,9 @@ ifdef JUNITXML
 override BUSTEDFLAGS := $(BUSTEDFLAGS) --output=junit -Xoutput $(REPORT_DIR)/report.xml
 endif
 
-override CPPFLAGS := -DPACKAGE_STRING="\"$(PACKAGE_STRING)\"" -DLUA_C89_NUMBERS -I$(LUA_INCDIR) -I$(LDAP_INCDIR) -I$(LBER_INCDIR) -I$(COMPAT_DIR) $(CPPFLAGS)
+override CPPFLAGS := -DPACKAGE_STRING="\"$(PACKAGE_STRING)\"" -DLUA_C89_NUMBERS -I$(LUA_INCDIR) -I$(LDAP_INCDIR) -I$(LBER_INCDIR) $(CPPFLAGS)
 
-ifeq ($(LUA_VERSION),5.0)
-COMPAT_O= $(COMPAT_DIR)/compat-5.1.o
-endif
-
-OBJS= src/lualdap.o $(COMPAT_O)
+OBJS= src/lualdap.o
 
 LIBNAME=$(T).so
 

@@ -34,8 +34,6 @@ LBER_INCDIR = /usr/include
 LIBFLAG = -shared # for Linux
 #LIBFLAG = -bundle -undefined dynamic_lookup # for MacOS X
 
-COMPAT_DIR= ../compat/src
-
 # Compilation parameters
 WARN= -pedantic -Wall -W -Waggregate-return -Wcast-align -Wmissing-prototypes -Wnested-externs -Wshadow -Wwrite-strings
 CFLAGS= -O2 -fPIC -std=c89 $(WARN)

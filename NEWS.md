@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 * We no longer export a `lualdap` global variable, in accordance with Lua 5.2 module rules (#8)
   - cf. https://www.lua.org/manual/5.2/manual.html#8.2
+* Remove support for Lua 5.0 by including an external file outside the source directory
+  - Support for Lua 5.1 and 5.2 continues through our inclusion of lua-compat-5.3 (see release notes for v1.2.4-rc1)
 
 ## [1.2.4] - 2019-01-02
 ### Added
