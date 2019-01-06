@@ -242,12 +242,16 @@ end)
 ---------------------------------------------------------------------
 describe("basic search operation", function()
 	local _,_,rdn = string.find (WHO, "^([^,]+)%,.*$")
+	CONN_OK (LD)
 	local iter = LD:search {
 		base = BASE,
 		scope = "onelevel",
 		sizelimit = 1,
 		filter = "("..rdn..")",
 	}
+	it("search returns something", function()
+		assert.is_not_nil(iter)
+	end)
 	it("search returns future", function()
 		assert.is_calleable(iter)
 	end)
@@ -356,12 +360,16 @@ end
 ---------------------------------------------------------------------
 describe("advanced search operation", function()
 	local _,_,rdn = string.find (WHO, "^([^,]+)%,.*$")
+	CONN_OK (LD)
 	local iter = LD:search {
 		base = BASE,
 		scope = "onelevel",
 		sizelimit = 1,
 		filter = "("..rdn..")",
 	}
+	it("search returns something", function()
+		assert.is_not_nil(iter)
+	end)
 	it("search returns future", function()
 		assert.is_calleable(iter)
 	end)
