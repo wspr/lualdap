@@ -123,15 +123,6 @@ static search_data *getsearch (lua_State *L) {
 
 
 /*
-** Set metatable of userdata on top of the stack.
-*/
-static void lualdap_setmeta (lua_State *L, const char *name) {
-	luaL_getmetatable (L, name);
-	lua_setmetatable (L, -2);
-}
-
-
-/*
 ** Error on option.
 */
 static int option_error (lua_State *L, const char *name, const char *type) {
@@ -804,7 +795,7 @@ static int lualdap_search_close (lua_State *L) {
 */
 static void create_search (lua_State *L, int conn_index, int msgid) {
 	search_data *search = (search_data *)lua_newuserdata (L, sizeof (search_data));
-	lualdap_setmeta (L, LUALDAP_SEARCH_METATABLE);
+	luaL_setmetatable (L, LUALDAP_SEARCH_METATABLE);
 	search->conn = LUA_NOREF;
 	search->msgid = msgid;
 	lua_pushvalue (L, conn_index);
@@ -972,7 +963,7 @@ static int lualdap_initialize (lua_State *L) {
 	int lev=7;
 
 	/* Initialize */
-	lualdap_setmeta (L, LUALDAP_CONNECTION_METATABLE);
+	luaL_setmetatable (L, LUALDAP_CONNECTION_METATABLE);
 	conn->version = 0;
 #if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
 	err = ldap_initialize (&conn->ld, uri);
