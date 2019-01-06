@@ -135,7 +135,10 @@ end
 -- basic checking test.
 ---------------------------------------------------------------------
 describe("basics", function()
-	local ld = CONN_OK (lualdap.open_simple (HOSTNAME, BIND_DN, PASSWORD))
+	local ld = CONN_OK (lualdap.initialize (URI))
+	it("can connect and bind", function()
+		assert.is_true(ld:bind_simple (BIND_DN, PASSWORD))
+	end)
 	it("can close connection", function()
 		assert.is_same(1, ld:close())
 	end)
@@ -155,8 +158,9 @@ describe("basics", function()
 		assert.is_nil(lualdap.open_simple ("unknown-server"))
 	end)
 end)
-describe("creating a connection using a URI", function()
-	local ld = CONN_OK (lualdap.open_simple (URI, BIND_DN, PASSWORD))
+
+describe("creating a connection using a hostname", function()
+	local ld = CONN_OK (lualdap.open_simple (HOSTNAME, BIND_DN, PASSWORD))
 	it("can close connection", function()
 		assert.is_same(1, ld:close())
 	end)
