@@ -12,7 +12,7 @@ OpenLDAP or to Active Directory Service Interfaces (ADSI).  It enables a Lua pro
 
 # Installation
 
-Current version is 1.2.4.  It was developed for Lua 5.1, 5.2 and 5.3,
+Current version is 1.2.5.  It was developed for Lua 5.1, 5.2 and 5.3,
 and both OpenLDAP 2.1 or newer and ADSI.
 
 # Source code directory structure
