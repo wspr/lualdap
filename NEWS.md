@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Removed
+* We no longer export a `lualdap` global variable, in accordance with Lua 5.2 module rules (#8)
+  - cf. https://www.lua.org/manual/5.2/manual.html#8.2
 
 ## [1.2.4] - 2019-01-02
 ### Added
