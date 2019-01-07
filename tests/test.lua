@@ -188,7 +188,7 @@ describe("creating a connection using a hostname", function()
 end)
 
 describe("tests on an existing connection", function()
-	local LD, CLOSED_LD, NEW_DN, DN, ENTRY
+	local LD, CLOSED_LD
 
 	-- reopen the connection.
 	setup(function()
@@ -206,6 +206,7 @@ describe("tests on an existing connection", function()
 ---------------------------------------------------------------------
 describe("compare operation", function()
 	local _,_,rdn_name,rdn_value = string.find (BASE, DN_PAT)
+
 	it("preparations", function()
 		assert.message("could not extract RDN name").is_string(rdn_name)
 		assert.message("could not extract RDN value").is_string(rdn_value)
@@ -241,21 +242,24 @@ end)
 -- checking basic search operation.
 ---------------------------------------------------------------------
 describe("basic search operation", function()
-	local _,_,rdn = string.find (WHO, "^([^,]+)%,.*$")
-	CONN_OK (LD)
-	local iter = LD:search {
-		base = BASE,
-		scope = "onelevel",
-		sizelimit = 1,
-		filter = "("..rdn..")",
-	}
+	local iter
+
+	setup(function()
+		local _,_,rdn = string.find (WHO, "^([^,]+)%,.*$")
+		iter = LD:search {
+			base = BASE,
+			scope = "onelevel",
+			sizelimit = 1,
+			filter = "("..rdn..")",
+		}
+		collectgarbage()
+	end)
 	it("search returns something", function()
 		assert.is_not_nil(iter)
 	end)
 	it("search returns future", function()
 		assert.is_calleable(iter)
 	end)
-	collectgarbage()
 	CONN_OK (LD)
 	it("search result iterator returns DN and value", function()
 		local dn, entry = iter ()
@@ -267,18 +271,6 @@ describe("basic search operation", function()
 		assert.is_calleable(iter)
 	end)
 	CONN_OK (LD)
-
-	DN, ENTRY = LD:search {
-		base = BASE,
-		scope = "onelevel",
-		sizelimit = 1,
-		filter = "("..rdn..")",
-	}()
-	collectgarbage()
-	it("can access first search result directly", function()
-		assert.is_string(DN)
-		assert.is_table(ENTRY)
-	end)
 end)
 
 
@@ -286,14 +278,19 @@ end)
 -- checking advanced search operation.
 ---------------------------------------------------------------------
 describe("advanced search operation", function()
-	local _,_,rdn = string.find (WHO, "^([^,]+)%,.*$")
-	CONN_OK (LD)
-	local iter = LD:search {
-		base = BASE,
-		scope = "onelevel",
-		sizelimit = 1,
-		filter = "("..rdn..")",
-	}
+	local iter
+
+	setup(function()
+		local _,_,rdn = string.find (WHO, "^([^,]+)%,.*$")
+		iter = LD:search {
+			base = BASE,
+			scope = "onelevel",
+			sizelimit = 1,
+			filter = "("..rdn..")",
+		}
+		collectgarbage()
+	end)
+
 	it("search returns something", function()
 		assert.is_not_nil(iter)
 	end)
@@ -313,9 +310,6 @@ describe("advanced search operation", function()
 		collectgarbage ()
 		assert.is_calleable(iter)
 	end)
-	iter = nil
-	collectgarbage ()
-
 	it("cannot search without specification", function()
 		assert.is_false(pcall (LD.search, LD))
 	end)
@@ -329,14 +323,45 @@ end)
 
 
 ---------------------------------------------------------------------
+-- wrap tests further down the file, which need certain variables.
+---------------------------------------------------------------------
+describe("tests using ENTRY and NEW_DN", function()
+	local DN, NEW_DN, ENTRY
+	local rdn_name, new_rdn_value, parent_dn
+
+	setup(function()
+		local _,_,rdn = string.find (WHO, "^([^,]+)%,.*$")
+		DN, ENTRY = LD:search {
+			base = BASE,
+			scope = "onelevel",
+			sizelimit = 1,
+			filter = "("..rdn..")",
+		}()
+		collectgarbage()
+		local _, rdn_value
+		_,_,rdn_name, rdn_value, parent_dn = string.find (DN, DN_PAT)
+		new_rdn_value = rdn_value.."_copy"
+		NEW_DN = string.format ("%s=%s,%s", rdn_name, new_rdn_value, parent_dn)
+	end)
+
+	it("DN and ENTRY contain sane values", function()
+		assert.is_string(DN)
+		assert.is_table(ENTRY)
+	end)
+
+
+---------------------------------------------------------------------
 -- checking add operation.
 ---------------------------------------------------------------------
 describe("add operation", function()
-	-- clone an entry.
-	local NEW = clone (ENTRY)
-	local _,_,rdn_name, rdn_value, parent_dn = string.find (DN, DN_PAT)
-	NEW[rdn_name] = rdn_value.."_copy"
-	NEW_DN = string.format ("%s=%s,%s", rdn_name, NEW[rdn_name], parent_dn)
+	local NEW
+
+	setup(function()
+		-- clone an entry.
+		NEW = clone (ENTRY)
+		NEW[rdn_name] = new_rdn_value
+	end)
+
 	it("cannot insert an entry with a wrong connection", function()
 		assert.is_false(pcall(LD.add, CLOSED_LD, NEW_DN, NEW))
 	end)
@@ -405,8 +430,13 @@ end
 -- checking even more advanced search operation.
 ---------------------------------------------------------------------
 describe("even more advanced search operation", function()
-	local _,_, rdn_name, rdn_value, parent_dn = string.find (NEW_DN, DN_PAT)
-	local filter = string.format ("(%s=%s)", rdn_name, rdn_value)
+	local filter
+
+	setup(function()
+		local _,_, rdn_name, rdn_value, parent_dn = string.find (NEW_DN, DN_PAT)
+		filter = string.format ("(%s=%s)", rdn_name, rdn_value)
+	end)
+
 	it("filter works", function()
 		assert.is_same(1, count { base = BASE, scope = "subtree", filter = filter, })
 	end)
@@ -430,11 +460,7 @@ describe("even more advanced search operation", function()
 		assert.is_nil(dn)
 		assert.is_nil(e1)
 		assert.is_false(pcall(iter))
-		iter = nil
 	end)
-	-- checking collecting search objects.
-	local dn, entry = LD:search { base = BASE, scope = "base" }()
-	collectgarbage()
 end)
 
 
@@ -442,9 +468,15 @@ end)
 -- checking rename operation.
 ---------------------------------------------------------------------
 describe("rename operation", function()
-	local _,_, rdn_name, rdn_value, parent_dn = string.find (NEW_DN, DN_PAT)
-	local new_rdn = rdn_name..'='..rdn_value..'_'
-	local new_dn = string.format ("%s,%s", new_rdn, parent_dn)
+	local new_dn, new_rdn, rdn_name, rdn_value, parent_dn
+
+	setup(function()
+		local _
+		_,_, rdn_name, rdn_value, parent_dn = string.find (NEW_DN, DN_PAT)
+		new_rdn = rdn_name..'='..rdn_value..'_'
+		new_dn = string.format ("%s,%s", new_rdn, parent_dn)
+	end)
+
 	it("cannot rename with no parent", function()
 		assert.returned_future(true, LD.rename, LD, NEW_DN, new_rdn, nil)
 	end)
@@ -501,6 +533,8 @@ describe("close operation", function()
 	it("can close connection", function()
 		assert.message("couldn't close connection").is_same(1, LD:close())
 	end)
+end)
+
 end)
 
 end)
