@@ -27,18 +27,18 @@ in the instructions below.
 
 ## Release checklist
 
--[] Copy `rockspecs/rockspec` to `rockspecs/lualdap/lualdap-${LUAROCKS_VERSION}.rockspec`
--[] In `Makefile` and `Makefile.win` adjust `V` to `${VERSION}` 
--[] In `src/lualdap.def` adjust `VERSION` to `${WINDOWS_VERSION}`
--[] In `README.md` adjust "Current version" to `${VERSION}` under
+- [ ] Copy `rockspecs/rockspec` to `rockspecs/lualdap/lualdap-${LUAROCKS_VERSION}.rockspec`
+- [ ] In `Makefile` and `Makefile.win` adjust `V` to `${VERSION}` 
+- [ ] In `src/lualdap.def` adjust `VERSION` to `${WINDOWS_VERSION}`
+- [ ] In `README.md` adjust "Current version" to `${VERSION}` under
     "installation"
--[] In `NEWS.md`:
-    -[] Rename "Unreleased" to `${VERSION}`
-    -[] Adjust the link for `Unreleased` to show the changelog (commit log)
+- [ ] In `NEWS.md`:
+    - [ ] Rename "Unreleased" to `${VERSION}`
+    - [ ] Adjust the link for `Unreleased` to show the changelog (commit log)
         between the previous version and `v${VERSION}` and rename it to
         `${VERSION}`
-    -[] Add a new, empty "Unreleased" section
-    -[] Add a new link for `Unreleased` to show the changelog between
+    - [ ] Add a new, empty "Unreleased" section
+    - [ ] Add a new link for `Unreleased` to show the changelog between
        `v${VERSION}` and `HEAD`
--[] Commit these changes with message "Release v${VERSION}"
--[] Tag this commit with `v${VERSION}`
+- [ ] Commit these changes with message "Release v${VERSION}"
+- [ ] Tag this commit with `v${VERSION}`
