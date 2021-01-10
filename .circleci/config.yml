@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  codecov: codecov/codecov@1.0.1
+  codecov: codecov/codecov@1.1.3
 jobs:
   build_and_test:
     description: "Build and test for a specific Lua version"
@@ -9,7 +9,7 @@ jobs:
         type: string
     working_directory: /lualdap
     docker:
-    - image: quay.io/devurandom/lua-dev:debian9.6-1@sha256:9a69efdc28b97354fe9ea3c174473ddf906f8307d3c8b9fd4cf3ddc8fc218528
+    - image: quay.io/devurandom/lua-dev:debian10.7-1@sha256:74f50fb4818f8e9856d8f9fdc927a072425ad2d635db509422c66bfc5a8d784f
     - image: docker.io/openshift/openldap-2441-centos7@sha256:b5619d4de8efec7973dbd280eb2cc462ebeb8ae6e457acef4b743b7374dd600d
     steps:
     - checkout
