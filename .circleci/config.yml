@@ -5,19 +5,45 @@ jobs:
   build_and_test:
     description: "Build and test for a specific Lua version"
     parameters:
-      version:
+      lua:
         type: string
-    working_directory: /lualdap
+      compat:
+        type: string
     docker:
-    - image: quay.io/devurandom/lua-dev:debian10.7-1@sha256:74f50fb4818f8e9856d8f9fdc927a072425ad2d635db509422c66bfc5a8d784f
+    - image: circleci/python
     - image: docker.io/openshift/openldap-2441-centos7@sha256:b5619d4de8efec7973dbd280eb2cc462ebeb8ae6e457acef4b743b7374dd600d
     steps:
     - checkout
     - run:
-        name: Install build / test dependencies
+        name: Install debian dependencies
         command: |
-          apt -y update
-          apt -y install libldap2-dev ldap-utils netcat
+          sudo apt -y update
+          sudo apt -y install libldap2-dev
+          sudo apt -y install ldap-utils netcat
+    - run:
+        name: Install hererocks
+        command: |
+          pip3 install hererocks
+          hererocks bed --<<parameters.lua>> --compat <<parameters.compat>> --no-readline --luarocks latest --verbose
+          hererocks bed --show
+    - run:
+        name: Install rocks dependencies
+        command: |
+          source bed/bin/activate
+          luarocks install busted
+          luarocks install cluacov
+          luarocks list
+    - run:
+        name: "Build"
+        command: |
+          source bed/bin/activate
+          luarocks make rockspecs/rockspec COVERAGE=1 JUNITXML=1
+    - run:
+        name: "Smoke"
+        command: |
+          source bed/bin/activate
+          lua -v
+          lua -e "print(require[[lualdap]]._DESCRIPTION)"
     - run:
         name: "Wait for OpenLDAP to spin up"
         command: while ! nc -z localhost 389 ; do sleep 1 ; done
@@ -25,19 +51,14 @@ jobs:
         name: Prime and test LDAP DB
         command: ./tests/setup.sh
     - run:
-        name: "Build"
-        environment:
-        - LUAENV_VERSION: <<parameters.version>>
-        command: eval "$(luaenv init -)" && luarocks make COVERAGE=1 JUNITXML=1
-    - run:
         name: "Test"
-        environment:
-        - LUAENV_VERSION: <<parameters.version>>
-        command: eval "$(luaenv init -)" && make BUILD_VARIANT=$LUAENV_VERSION COVERAGE=1 JUNITXML=1 check
+        command: |
+          source bed/bin/activate
+          make COVERAGE=1 JUNITXML=1 check
     - codecov/upload:
         file: "*.gcov"
         flags: default
-        upload_name: <<parameters.version>>
+        upload_name: <<parameters.lua>>
     - store_test_results:
         path: test-reports/
 workflows:
@@ -45,17 +66,26 @@ workflows:
   build_and_test:
     jobs:
     - build_and_test:
-        name: lua-5.1.5
-        version: 5.1.5
+        name: lua5.1
+        lua: "lua 5.1"
+        compat: default
     - build_and_test:
-        name: lua-5.2.4
-        version: 5.2.4
+        name: lua5.2
+        lua: "lua 5.2"
+        compat: default
     - build_and_test:
-        name: lua-5.3.5
-        version: 5.3.5
+        name: lua5.3
+        lua: "lua 5.3"
+        compat: default
     - build_and_test:
-        name: luajit-2.0.5
-        version: luajit-2.0.5
+        name: lua5.4
+        lua: "lua 5.4"
+        compat: default
     - build_and_test:
-        name: luajit-2.1.0-beta3
-        version: luajit-2.1.0-beta3
+        name: luajit2.0
+        lua: "luajit 2.0"
+        compat: all
+    - build_and_test:
+        name: luajit2.1
+        lua: "luajit 2.1"
+        compat: all
