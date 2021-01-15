@@ -2,8 +2,41 @@ version: 2.1
 orbs:
   codecov: codecov/codecov@1.1.3
 jobs:
-  build_and_test:
-    description: "Build and test for a specific Lua version"
+  build_rock:
+    description: "Build with luarocks for a specific Lua version"
+    parameters:
+      lua:
+        type: string
+      compat:
+        type: string
+    docker:
+    - image: circleci/python
+    steps:
+    - checkout
+    - run:
+        name: Install debian dependencies
+        command: |
+          sudo apt -y update
+          sudo apt -y install libldap2-dev
+    - run:
+        name: Install hererocks
+        command: |
+          pip3 install hererocks
+          hererocks bed --<<parameters.lua>> --compat <<parameters.compat>> --no-readline --luarocks latest --verbose
+          hererocks bed --show
+    - run:
+        name: "Build (with install)"
+        command: |
+          source bed/bin/activate
+          luarocks make rockspecs/rockspec
+    - run:
+        name: "Smoke"
+        command: |
+          source bed/bin/activate
+          lua -v
+          lua -e "print(require[[lualdap]]._DESCRIPTION)"
+  test_with_coverage:
+    description: "Test with coverage for a specific Lua version"
     parameters:
       lua:
         type: string
@@ -34,16 +67,10 @@ jobs:
           luarocks install cluacov
           luarocks list
     - run:
-        name: "Build"
+        name: "Build (without install)"
         command: |
           source bed/bin/activate
-          luarocks make rockspecs/rockspec COVERAGE=1 JUNITXML=1
-    - run:
-        name: "Smoke"
-        command: |
-          source bed/bin/activate
-          lua -v
-          lua -e "print(require[[lualdap]]._DESCRIPTION)"
+          make LUA_INCDIR=bed/include COVERAGE=1 src/lualdap.so
     - run:
         name: "Wait for OpenLDAP to spin up"
         command: while ! nc -z localhost 389 ; do sleep 1 ; done
@@ -51,9 +78,10 @@ jobs:
         name: Prime and test LDAP DB
         command: ./tests/setup.sh
     - run:
-        name: "Test"
+        name: "Test with coverage"
         command: |
           source bed/bin/activate
+          export LUA_CPATH="./src/?.so"
           make COVERAGE=1 JUNITXML=1 check
     - codecov/upload:
         file: "*.gcov"
@@ -63,29 +91,55 @@ jobs:
         path: test-reports/
 workflows:
   version: 2
-  build_and_test:
+  build_rock:
     jobs:
-    - build_and_test:
-        name: lua5.1
+    - build_rock:
+        name: "rock lua5.1"
         lua: "lua 5.1"
         compat: default
-    - build_and_test:
-        name: lua5.2
+    - build_rock:
+        name: "rock lua5.2"
         lua: "lua 5.2"
         compat: default
-    - build_and_test:
-        name: lua5.3
+    - build_rock:
+        name: "rock lua5.3"
         lua: "lua 5.3"
         compat: default
-    - build_and_test:
-        name: lua5.4
+    - build_rock:
+        name: "rock lua5.4"
         lua: "lua 5.4"
         compat: default
-    - build_and_test:
-        name: luajit2.0
+    - build_rock:
+        name: "rock luajit2.0"
         lua: "luajit 2.0"
         compat: all
-    - build_and_test:
-        name: luajit2.1
+    - build_rock:
+        name: "rock luajit2.1"
+        lua: "luajit 2.1"
+        compat: all
+  test_with_coverage:
+    jobs:
+    - test_with_coverage:
+        name: "coverage lua5.1"
+        lua: "lua 5.1"
+        compat: default
+    - test_with_coverage:
+        name: "coverage lua5.2"
+        lua: "lua 5.2"
+        compat: default
+    - test_with_coverage:
+        name: "coverage lua5.3"
+        lua: "lua 5.3"
+        compat: default
+    - test_with_coverage:
+        name: "coverage lua5.4"
+        lua: "lua 5.4"
+        compat: default
+    - test_with_coverage:
+        name: "coverage luajit2.0"
+        lua: "luajit 2.0"
+        compat: all
+    - test_with_coverage:
+        name: "coverage luajit2.1"
         lua: "luajit 2.1"
         compat: all
