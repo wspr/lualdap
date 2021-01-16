@@ -1,7 +1,6 @@
 /*
 ** LuaLDAP
 ** See Copyright Notice in license.md
-** $Id: lualdap.c,v 1.48 2007-12-14 15:11:22 carregal Exp $
 */
 
 #include <stdlib.h>
