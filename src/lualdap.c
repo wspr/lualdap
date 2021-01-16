@@ -1066,6 +1066,10 @@ int luaopen_lualdap (lua_State *L) {
 		{"initialize", lualdap_initialize},
 #endif
 		{"open_simple", lualdap_open_simple},
+		/* placeholders */
+		{"_COPYRIGHT", NULL},
+		{"_DESCRIPTION", NULL},
+		{"_VERSION", NULL},
 		{NULL, NULL},
 	};
 
