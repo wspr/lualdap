@@ -26,7 +26,7 @@ jobs:
         name: "Build (with install)"
         command: |
           source bed/bin/activate
-          luarocks make rockspecs/rockspec
+          luarocks make rockspec/lualdap-dev-1.rockspec
     - run:
         name: "Smoke"
         command: |
