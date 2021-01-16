@@ -27,7 +27,7 @@ in the instructions below.
 
 ## Release checklist
 
-- [ ] Copy `rockspecs/lualdap-dev-1.rockspec` to `rockspecs/lualdap-${LUAROCKS_VERSION}.rockspec`
+- [ ] Copy `rockspecs/lualdap-dev-2.rockspec` to `rockspecs/lualdap-${LUAROCKS_VERSION}.rockspec`
 - [ ] In `Makefile` and `Makefile.win` adjust `V` to `${VERSION}` 
 - [ ] In `src/lualdap.def` adjust `VERSION` to `${WINDOWS_VERSION}`
 - [ ] In `README.md` adjust "Current version" to `${VERSION}` under
