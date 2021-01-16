@@ -1,0 +1,53 @@
+Source: lua-ldap
+Section: interpreters
+Priority: optional
+Maintainer: Victor Seva <vseva@debian.org>
+Uploaders:
+ Enrico Tassi <gareuselesinge@debian.org>,
+Build-Depends:
+ debhelper (>= 10),
+ dh-lua (>= 12),
+ libldap2-dev,
+Standards-Version: 4.2.1
+Vcs-Git: https://salsa.debian.org/lua-team/lua-ldap.git
+Vcs-Browser: https://salsa.debian.org/lua-team/lua-ldap
+Homepage: https://lualdap.github.io/lualdap
+
+Package: lua-ldap
+Architecture: any
+Multi-Arch: same
+Pre-Depends:
+ ${misc:Pre-Depends},
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+Provides:
+ ${lua:Provides},
+XB-Lua-Versions: ${lua:Versions}
+Description: LDAP library for the Lua language
+ This package contains the Lua LDAP library to:
+  * Connect to an LDAP server (OpenLDAP or ADSI/WinLDAP);
+  * Execute any operation (search, add, compare, delete, modify
+    and rename);
+  * Retrieve entries and references of the search result.
+ .
+ This package contains the runtime library.
+
+Package: lua-ldap-dev
+Architecture: any
+Multi-Arch: same
+Pre-Depends:
+ ${misc:Pre-Depends},
+Depends:
+ lua-ldap (= ${binary:Version}),
+ ${misc:Depends},
+Provides:
+ ${lua:Provides},
+XB-Lua-Versions: ${lua:Versions}
+Section: libdevel
+Description: LDAP development files for the Lua language
+ This package contains the development files of the Lua LDAP library,
+ useful to create a statically linked binary (like a C application or a
+ standalone Lua interpreter).
+ .
+ Documentation is also shipped within this package.

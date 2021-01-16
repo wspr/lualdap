@@ -77,3 +77,11 @@ pages:
 
 gh-pages:
 	mkdocs gh-deploy --clean
+
+deb:
+	echo "lua-ldap ($(V)) unstable; urgency=medium" >  debian/changelog
+	echo ""                         >> debian/changelog
+	echo "  * UNRELEASED"           >> debian/changelog
+	echo ""                         >> debian/changelog
+	echo " -- $(shell git config --get user.name) <$(shell git config --get user.email)>  $(shell date -R)" >> debian/changelog
+	fakeroot debian/rules clean binary

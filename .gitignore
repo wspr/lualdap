@@ -14,3 +14,15 @@ test-reports/
 
 site
 
+5*/
+debian/.debhelper
+debian/lua-ldap
+debian/lua-ldap-dev
+debian/tmp
+debian/trash
+debian/*.install
+debian/*.substvars
+debian/debhelper-build-stamp
+debian/files
+debian/lua_versions
+
