@@ -7,8 +7,6 @@ jobs:
     parameters:
       lua:
         type: string
-      compat:
-        type: string
     docker:
     - image: circleci/python
     steps:
@@ -22,7 +20,7 @@ jobs:
         name: Install hererocks
         command: |
           pip3 install hererocks
-          hererocks bed --<<parameters.lua>> --compat <<parameters.compat>> --no-readline --luarocks latest --verbose
+          hererocks bed --<<parameters.lua>> --no-readline --luarocks latest --verbose
           hererocks bed --show
     - run:
         name: "Build (with install)"
@@ -40,8 +38,6 @@ jobs:
     parameters:
       lua:
         type: string
-      compat:
-        type: string
     docker:
     - image: circleci/python
     - image: docker.io/openshift/openldap-2441-centos7@sha256:b5619d4de8efec7973dbd280eb2cc462ebeb8ae6e457acef4b743b7374dd600d
@@ -57,7 +53,7 @@ jobs:
         name: Install hererocks
         command: |
           pip3 install hererocks
-          hererocks bed --<<parameters.lua>> --compat <<parameters.compat>> --no-readline --luarocks latest --verbose
+          hererocks bed --<<parameters.lua>> --no-readline --luarocks latest --verbose
           hererocks bed --show
     - run:
         name: Install rocks dependencies
@@ -94,52 +90,14 @@ workflows:
   build_rock:
     jobs:
     - build_rock:
-        name: "rock lua5.1"
-        lua: "lua 5.1"
-        compat: default
-    - build_rock:
-        name: "rock lua5.2"
-        lua: "lua 5.2"
-        compat: default
-    - build_rock:
-        name: "rock lua5.3"
-        lua: "lua 5.3"
-        compat: default
-    - build_rock:
-        name: "rock lua5.4"
-        lua: "lua 5.4"
-        compat: default
-    - build_rock:
-        name: "rock luajit2.0"
-        lua: "luajit 2.0"
-        compat: all
-    - build_rock:
-        name: "rock luajit2.1"
-        lua: "luajit 2.1"
-        compat: all
+        name: "rock <<matrix.lua>>"
+        matrix:
+           parameters:
+            lua: ["lua 5.1", "lua 5.2", "lua 5.3", "lua 5.4", "luajit 2.0", "luajit 2.1"]
   test_with_coverage:
     jobs:
     - test_with_coverage:
-        name: "coverage lua5.1"
-        lua: "lua 5.1"
-        compat: default
-    - test_with_coverage:
-        name: "coverage lua5.2"
-        lua: "lua 5.2"
-        compat: default
-    - test_with_coverage:
-        name: "coverage lua5.3"
-        lua: "lua 5.3"
-        compat: default
-    - test_with_coverage:
-        name: "coverage lua5.4"
-        lua: "lua 5.4"
-        compat: default
-    - test_with_coverage:
-        name: "coverage luajit2.0"
-        lua: "luajit 2.0"
-        compat: all
-    - test_with_coverage:
-        name: "coverage luajit2.1"
-        lua: "luajit 2.1"
-        compat: all
+        name: "coverage <<matrix.lua>>"
+        matrix:
+           parameters:
+            lua: ["lua 5.1", "lua 5.2", "lua 5.3", "lua 5.4", "luajit 2.0", "luajit 2.1"]
