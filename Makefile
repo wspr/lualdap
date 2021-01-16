@@ -51,6 +51,10 @@ install: src/$(LIBNAME)
 clean:
 	$(RM) -r $(OBJS) src/$(LIBNAME) src/*.gcda src/*.gcno src/*.gcov luacov.*.out $(REPORT_DIR)
 
+smoke:
+	@echo SMOKE with $(LUA)
+	@LUA_CPATH="./src/?.so" $(LUA) tests/smoke.lua
+
 check: $(REPORT_DIR)
 	env $(foreach var,$(LDAP_VARS) LDAP_HOST,$(var)=$($(var))) busted $(BUSTEDFLAGS) tests/test.lua
 ifdef COVERAGE

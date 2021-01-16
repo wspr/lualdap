@@ -32,7 +32,7 @@ jobs:
         command: |
           source bed/bin/activate
           lua -v
-          lua -e "print(require[[lualdap]]._DESCRIPTION)"
+          lua tests/smoke.lua
   test_with_coverage:
     description: "Test with coverage for a specific Lua version"
     parameters:
