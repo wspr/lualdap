@@ -917,36 +917,29 @@ static int lualdap_createmeta (lua_State *L) {
 	luaL_setfuncs(L, methods, 0);
 
 	/* define metamethods */
-	lua_pushliteral (L, "__gc");
 	lua_pushcfunction (L, lualdap_close);
-	lua_settable (L, -3);
+	lua_setfield (L, -2, "__gc");
 
-	lua_pushliteral (L, "__index");
-	lua_pushvalue (L, -2);
-	lua_settable (L, -3);
+	lua_pushvalue (L, -1);
+	lua_setfield (L, -2, "__index");
 
-	lua_pushliteral (L, "__tostring");
 	lua_pushcfunction (L, lualdap_conn_tostring);
-	lua_settable (L, -3);
+	lua_setfield (L, -2, "__tostring");
 
-	lua_pushliteral (L, "__metatable");
 	lua_pushliteral(L,LUALDAP_PREFIX"you're not allowed to get this metatable");
-	lua_settable (L, -3);
+	lua_setfield (L, -2, "__metatable");
 
 	if (!luaL_newmetatable (L, LUALDAP_SEARCH_METATABLE))
 		return 0;
 
-	lua_pushliteral (L, "__gc");
 	lua_pushcfunction (L, lualdap_search_close);
-	lua_settable (L, -3);
+	lua_setfield (L, -2, "__gc");
 
-	lua_pushliteral (L, "__tostring");
 	lua_pushcclosure (L, lualdap_search_tostring, 1);
-	lua_settable (L, -3);
+	lua_setfield (L, -2, "__tostring");
 
-	lua_pushliteral (L, "__metatable");
 	lua_pushliteral(L,LUALDAP_PREFIX"you're not allowed to get this metatable");
-	lua_settable (L, -3);
+	lua_setfield (L, -2, "__metatable");
 
 	return 0;
 }
@@ -1055,15 +1048,12 @@ static int lualdap_open_simple (lua_State *L) {
 ** Assumes the table is on top of the stack.
 */
 static void set_info (lua_State *L) {
-	lua_pushliteral (L, "_COPYRIGHT");
 	lua_pushliteral (L, "Copyright (C) 2003-2007 Kepler Project");
-	lua_settable (L, -3);
-	lua_pushliteral (L, "_DESCRIPTION");
+	lua_setfield (L, -2, "_COPYRIGHT");
 	lua_pushliteral (L, "LuaLDAP is a simple interface from Lua to an LDAP client");
-	lua_settable (L, -3);
-	lua_pushliteral (L, "_VERSION");
+	lua_setfield (L, -2, "_DESCRIPTION");
 	lua_pushliteral (L, "LuaLDAP 1.2.5");
-	lua_settable (L, -3);
+	lua_setfield (L, -2, "_VERSION");
 }
 
 
