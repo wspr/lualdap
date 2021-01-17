@@ -80,7 +80,7 @@ local DN_PAT = "^([^,=]+)%=([^,]+)%,?(.*)$"
 ---------------------------------------------------------------------
 -- Print attributes.
 ---------------------------------------------------------------------
-function print_attrs (dn, attrs)
+local function print_attrs (dn, attrs)
 	if not dn then
 		io.write ("nil\n")
 		return
@@ -105,7 +105,7 @@ end
 ---------------------------------------------------------------------
 -- clone a table.
 ---------------------------------------------------------------------
-function clone (tab)
+local function clone (tab)
 	local new = {}
 	for i, v in pairs (tab) do
 		new[i] = v
@@ -117,7 +117,7 @@ end
 ---------------------------------------------------------------------
 -- object test.
 ---------------------------------------------------------------------
-function test_object (obj, objmethods)
+local function test_object (obj, objmethods)
 	-- checking object type.
 	it("is a userdata object", function()
 		assert.is_userdata(obj)
@@ -128,7 +128,7 @@ function test_object (obj, objmethods)
 			getmetatable(obj))
 	end)
 	it("cannot set metatable", function()
-		assert.is_false(pcall(setmetatable, ENV, {}))
+		assert.is_false(pcall(setmetatable, obj, {}))
 	end)
 	-- checking existence of object's methods.
 	for i = 1, #objmethods do
@@ -143,7 +143,7 @@ function test_object (obj, objmethods)
 	return obj
 end
 
-CONN_OK = function (obj, err)
+local CONN_OK = function (obj, err)
 	if obj == nil then
 		error (err, 2)
 	end
@@ -416,7 +416,7 @@ end)
 
 
 ---------------------------------------------------------------------
-function count (tab)
+local function count (tab)
 	local counter = 0
 	for dn, entry in LD:search (tab) do
 		counter = counter + 1

@@ -51,6 +51,10 @@ install: src/$(LIBNAME)
 clean:
 	$(RM) -r $(OBJS) src/$(LIBNAME) src/*.gcda src/*.gcno src/*.gcov luacov.*.out $(REPORT_DIR)
 
+luacheck:
+	luacheck --codes --std min tests/smoke.lua --ignore 113/lualdap
+	luacheck --codes --std max+busted --max-line-length 160 -a -u tests/test.lua --ignore 431
+
 smoke:
 	@echo SMOKE with $(LUA)
 	@LUA_CPATH="./src/?.so" $(LUA) tests/smoke.lua

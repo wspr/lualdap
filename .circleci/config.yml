@@ -61,12 +61,18 @@ jobs:
           source bed/bin/activate
           luarocks install busted
           luarocks install cluacov
+          luarocks install luacheck
           luarocks list
     - run:
         name: "Build (without install)"
         command: |
           source bed/bin/activate
           make LUA_INCDIR=bed/include COVERAGE=1 src/lualdap.so
+    - run:
+        name: "Luacheck"
+        command: |
+          source bed/bin/activate
+          make luacheck
     - run:
         name: "Wait for OpenLDAP to spin up"
         command: while ! nc -z localhost 389 ; do sleep 1 ; done
