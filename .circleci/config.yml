@@ -85,6 +85,23 @@ jobs:
         upload_name: <<parameters.lua>>
     - store_test_results:
         path: test-reports/
+  build_deb:
+    description: "Build Debian packages"
+    docker:
+    - image: circleci/python
+    steps:
+    - checkout
+    - run:
+        name: Install debian dependencies
+        command: |
+          sudo apt -y update
+          sudo apt -y install libldap2-dev
+          sudo apt -y install fakeroot dh-lua
+    - run:
+        name: "Build"
+        command: |
+          rm debian/lua5.4.dh-lua.conf
+          make deb
 workflows:
   version: 2
   build_rock:
@@ -101,3 +118,7 @@ workflows:
         matrix:
            parameters:
             lua: ["lua 5.1", "lua 5.2", "lua 5.3", "lua 5.4", "luajit 2.0", "luajit 2.1"]
+  build_deb:
+    jobs:
+    - build_deb:
+        name: "deb"
