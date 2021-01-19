@@ -20,9 +20,13 @@ dependencies = {
     'lua >= 5.1'
 }
 external_dependencies = {
-    LDAP = {
-        header = 'ldap.h',
-        library = 'ldap',
+    platforms = {
+        unix = {
+            LDAP = {
+                header = 'ldap.h',
+                library = 'ldap',
+            },
+        },
     }
 }
 build = {
@@ -30,9 +34,25 @@ build = {
     modules = {
         lualdap = {
             sources = { 'src/lualdap.c' },
-            libdirs = { '$(LDAP_LIBDIR)' },
-            incdirs = { '$(LDAP_INCDIR)' },
-            libraries = { 'ldap' },
+        },
+    },
+    platforms = {
+        unix = {
+            modules = {
+                lualdap = {
+                    libdirs = { '$(LDAP_LIBDIR)' },
+                    incdirs = { '$(LDAP_INCDIR)' },
+                    libraries = { 'ldap' },
+                },
+            },
+        },
+        windows = {
+            modules = {
+                lualdap = {
+                    defines = { 'WIN32', 'WINLDAP' },
+                    libraries = { 'wldap32' },
+                },
+            },
         },
     },
     copy_directories = { 'docs' },
