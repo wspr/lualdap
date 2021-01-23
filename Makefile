@@ -1,8 +1,6 @@
-N= LuaLDAP
 T= lualdap
 V= 1.2.5
 R= 1
-PACKAGE_STRING=$(N) $(V)
 CONFIG= ./config
 
 include $(CONFIG)
@@ -16,7 +14,7 @@ endif
 
 CFLAGS_WARN := -pedantic -Wall -W -Waggregate-return -Wcast-align -Wmissing-prototypes -Wnested-externs -Wshadow -Wwrite-strings
 
-override CPPFLAGS := -DPACKAGE_STRING="\"$(PACKAGE_STRING)\"" -DLUA_C89_NUMBERS $(CPPFLAGS)
+override CPPFLAGS := -DLUA_C89_NUMBERS $(CPPFLAGS)
 override CFLAGS := -O2 -fPIC -std=c89 $(CFLAGS_WARN) $(CFLAGS)
 
 ifdef BUILD_VARIANT
@@ -62,12 +60,6 @@ endif
 
 $(REPORT_DIR):
 	mkdir -p $@
-
-package_string:
-# useful on custom builds, like in Debian that doesn't use directly make to
-# build the project. So it can be used like
-# -DPACKAGE_STRING="\"$(shell make package_string)\""
-	@echo "$(PACKAGE_STRING)"
 
 rock:
 	luarocks pack rockspec/lualdap-$(V)-$(R).rockspec

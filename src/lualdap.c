@@ -1049,7 +1049,7 @@ static void set_info (lua_State *L) {
 	lua_pushliteral (L, "LuaLDAP is a simple interface from Lua to an LDAP client");
 	lua_settable (L, -3);
 	lua_pushliteral (L, "_VERSION");
-	lua_pushliteral (L, PACKAGE_STRING);
+	lua_pushliteral (L, "LuaLDAP 1.2.5");
 	lua_settable (L, -3);
 }
 

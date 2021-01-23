@@ -29,6 +29,7 @@ in the instructions below.
 
 - [ ] Copy `rockspecs/lualdap-dev-2.rockspec` to `rockspecs/lualdap-${LUAROCKS_VERSION}.rockspec`
 - [ ] In `Makefile` and `Makefile.win` adjust `V` to `${VERSION}` 
+- [ ] In `src/lualdap.c` adjust `_VERSION` to `LuaLDAP ${VERSION}`
 - [ ] In `src/lualdap.def` adjust `VERSION` to `${WINDOWS_VERSION}`
 - [ ] In `README.md` adjust `badge/version-${VERSION}-blue`
 - [ ] In `docs/news.md`:

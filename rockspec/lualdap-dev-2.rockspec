@@ -30,7 +30,6 @@ build = {
     modules = {
         lualdap = {
             sources = { 'src/lualdap.c' },
-            defines = { 'PACKAGE_STRING=\"LuaLDAP ' .. version .. '\"'},
             libdirs = { '$(LDAP_LIBDIR)' },
             incdirs = { '$(LDAP_INCDIR)' },
             libraries = { 'ldap' },
