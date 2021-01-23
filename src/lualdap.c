@@ -982,7 +982,6 @@ static int lualdap_initialize (lua_State *L) {
 	return 1;
 }
 
-
 /*
 ** Open and initialize a connection to a server.
 ** @param #1 String with hostname.
@@ -993,10 +992,14 @@ static int lualdap_initialize (lua_State *L) {
 */
 static int lualdap_open_simple (lua_State *L) {
 	ldap_pchar_t host = (ldap_pchar_t) luaL_checkstring (L, 1);
-	ldap_pchar_t who = (ldap_pchar_t) luaL_optstring (L, 2, "");
+	ldap_pchar_t who = (ldap_pchar_t) luaL_optstring (L, 2, NULL);
 	const char *password = luaL_optstring (L, 3, "");
 	int use_tls = lua_toboolean (L, 4);
 	conn_data *conn = NULL;
+#if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
+	struct berval *cred = NULL;
+#endif
+	int err = LDAP_SUCCESS;
 
 	/* Initialize */
 	lua_pushcfunction (L, lualdap_initialize);
@@ -1020,19 +1023,16 @@ static int lualdap_open_simple (lua_State *L) {
 		if (rc != LDAP_SUCCESS)
 			return faildirect (L, ldap_err2string (rc));
 	}
-
 	/* Bind to a server */
-	lua_pushcfunction (L, lualdap_bind_simple);
-	lua_pushvalue (L, -2); /* connection object */
-	lua_pushstring (L, who);
-	lua_pushstring (L, password);
-	lua_call (L, 3, 2);
-	if (lua_isnil (L, -2)) {
-		return 2; /* Pass through in case of errors */
-	}
-	else {
-		lua_pop (L, 2); /* Discard return value and error message from lualdap_bind_simple */
-	}
+#if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
+	cred = ber_bvstrdup(password);
+	err = ldap_sasl_bind_s (conn->ld, who, LDAP_SASL_SIMPLE, cred, NULL, NULL, NULL);
+	ber_bvfree(cred);
+#else
+	err = ldap_bind_s (conn->ld, who, password, LDAP_AUTH_SIMPLE);
+#endif
+	if (err != LDAP_SUCCESS)
+		return faildirect (L, ldap_err2string (err));
 
 	return 1;
 }
