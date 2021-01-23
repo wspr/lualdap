@@ -164,7 +164,7 @@ static long longtabparam (lua_State *L, int idx, const char *name, int def) {
 	if (lua_isnil (L, -1))
 		return def;
 	else if (lua_isnumber (L, -1))
-		return (long)lua_tonumber (L, -1);
+		return (long)lua_tointeger (L, -1);
 	else
 		return option_error (L, name, "number");
 }
