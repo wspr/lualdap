@@ -1,8 +1,8 @@
 package="lualdap"
-version="dev-1"
+version="1.2.5-1"
 source = {
    url = "git://github.com/lualdap/lualdap",
-   branch = "master",
+   tag = "v1.2.5",
 }
 description = {
    summary = "Simple interface from Lua to an LDAP Client",
