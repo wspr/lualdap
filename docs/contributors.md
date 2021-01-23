@@ -26,4 +26,4 @@ Significant contributions were made by (in order of appearance):
  * [Brett Delle Grazie](https://github.com/bdellegrazie) <brett.dellegrazie@indigoblue.co.uk>: Documentation updates; curation of community patches
  * [Jakub Jirutka](https://github.com/jirutka) <jakub@jirutka.cz>: Initial Travis CI setup; bugfixes
  * [Victor Seva](https://github.com/linuxmaniac) <linuxmaniac@torreviejawireless.org>: `lualdap` global variable only with Lua 5.1
- * [Fran&ccedil;ois Perrad](https://github.com/fperrad) <francois.perrad@gadz.org>: Lua 5.4 compatiblity
+ * [Fran&ccedil;ois Perrad](https://github.com/fperrad) <francois.perrad@gadz.org>: Lua 5.4 compatiblity, fix WinLDAP

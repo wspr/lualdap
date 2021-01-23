@@ -7,7 +7,9 @@ assert(m._COPYRIGHT:match'Kepler Project')
 assert(m._DESCRIPTION:match'LDAP client')
 assert(m._VERSION:match'^LuaLDAP %d%.%d%.%d')
 
-assert(type(m.initialize) == 'function')
+if not os.getenv('OS') then
+    assert(type(m.initialize) == 'function')
+end
 assert(type(m.open_simple) == 'function')
 
 print'PASS'

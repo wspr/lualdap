@@ -898,7 +898,9 @@ static int lualdap_search_tostring (lua_State *L) {
 static int lualdap_createmeta (lua_State *L) {
 	const luaL_Reg methods[] = {
 		{"close", lualdap_close},
+#if !defined(WINLDAP)
 		{"bind_simple", lualdap_bind_simple},
+#endif
 		{"add", lualdap_add},
 		{"compare", lualdap_compare},
 		{"delete", lualdap_delete},
@@ -950,6 +952,7 @@ static int lualdap_createmeta (lua_State *L) {
 }
 
 
+#if !defined(WINLDAP)
 /*
 ** Open and initialize a connection to a server (without binding).
 ** @param #1 String with URI.
@@ -981,6 +984,7 @@ static int lualdap_initialize (lua_State *L) {
 
 	return 1;
 }
+#endif
 
 /*
 ** Open and initialize a connection to a server.
@@ -1068,7 +1072,9 @@ static void set_info (lua_State *L) {
 */
 int luaopen_lualdap (lua_State *L) {
 	struct luaL_Reg lualdap[] = {
+#if !defined(WINLDAP)
 		{"initialize", lualdap_initialize},
+#endif
 		{"open_simple", lualdap_open_simple},
 		{NULL, NULL},
 	};
