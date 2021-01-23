@@ -30,9 +30,8 @@ in the instructions below.
 - [ ] Copy `rockspecs/lualdap-dev-2.rockspec` to `rockspecs/lualdap-${LUAROCKS_VERSION}.rockspec`
 - [ ] In `Makefile` and `Makefile.win` adjust `V` to `${VERSION}` 
 - [ ] In `src/lualdap.def` adjust `VERSION` to `${WINDOWS_VERSION}`
-- [ ] In `README.md` adjust "Current version" to `${VERSION}` under
-    "installation"
-- [ ] In `NEWS.md`:
+- [ ] In `README.md` adjust `badge/version-${VERSION}-blue`
+- [ ] In `docs/news.md`:
     - [ ] Rename "Unreleased" to `${VERSION}`
     - [ ] Adjust the link for `Unreleased` to show the changelog (commit log)
         between the previous version and `v${VERSION}` and rename it to
@@ -44,3 +43,4 @@ in the instructions below.
 - [ ] Tag this commit with `v${VERSION}`
 - [ ] Run `make rock` in order to create `lualdap-${LUAROCKS_VERSION}.src.rock`
 - [ ] Upload on <luarocks.org> the new `rockspec` and `src.rock`
+- [ ] Run `make gh-pages` in order to update the site <https://lualdap.github.io/lualdap>

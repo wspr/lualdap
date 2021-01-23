@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Added
+* Lua 5.4 compatibility
+* Updated documentation is available on <https://lualdap.github.io/lualdap/>
+
 ### Fixed
 * Fix case in Makefile when install directory does not exist
 
@@ -41,7 +46,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * C89 compatibility
 * Fix two credentials-related segfaults in `open_simple()`
 
+## [1.2.3] - 2015-04-09
+### Changed
+* documentation
+
+## [1.2.2] - 2014-07-26
+### Changed
+* `lualdap_bind_simple()` with OpenLDAP 2.3 API
+
+## [1.2.1] - 2014-06-29
+### Added
+* from prosody.im, new function `initialize` and new method `bind_simple`
+
+## [1.2.0] - 2014-02-21
+### Added
+* Lua 5.2 compatibility
+* OpenLDAP 2.3 compatibility
+* rockspec
+
+## 1.1.0 - 2007-12-14
+### Added
+* support ADSI (WinLDAP) (Thanks to Mark Edgar)
+
+## 1.0.1 - 2006-04-04
+
+## 1.0 - 2005-06-10
+
+## 1.0-alpha - 2003-12-10
+
 [Unreleased]: https://github.com/lualdap/lualdap/compare/v1.2.5...HEAD
 [1.2.5]: https://github.com/lualdap/lualdap/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/lualdap/lualdap/compare/v1.2.4-rc1...v1.2.4
 [1.2.4-rc1]: https://github.com/lualdap/lualdap/compare/v1.2.3...v1.2.4-rc1
+[1.2.3]: https://github.com/lualdap/lualdap/compare/v1.2.2...v1.2.3
+[1.2.2]: https://github.com/lualdap/lualdap/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/lualdap/lualdap/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/lualdap/lualdap/compare/v1_1_0...v1.2.0
+

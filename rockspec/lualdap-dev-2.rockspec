@@ -14,7 +14,7 @@ description = {
        references of the search result.
     ]],
     license = 'MIT',
-    homepage = 'https://github.com/lualdap/lualdap',
+    homepage = 'https://lualdap.github.io/lualdap/',
 }
 dependencies = {
     'lua >= 5.1'
@@ -36,4 +36,5 @@ build = {
             libraries = { 'ldap' },
         },
     },
+    copy_directories = { 'docs' },
 }

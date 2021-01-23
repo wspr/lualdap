@@ -1,0 +1,11 @@
+site_name: LuaLDAP
+site_description: A Lua interface to the OpenLDAP library
+repo_url: https://github.com/lualdap/lualdap
+nav:
+- Home: index.md
+- Manual: manual.md
+- About:
+  - News: news.md
+  - Contributors: contributors.md
+  - License: license.md
+theme: mkdocs

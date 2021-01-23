@@ -71,3 +71,9 @@ package_string:
 
 rock:
 	luarocks pack rockspec/lualdap-$(V)-$(R).rockspec
+
+pages:
+	mkdocs build
+
+gh-pages:
+	mkdocs gh-deploy --clean

@@ -5,7 +5,7 @@
 -- directory to work on.  This new entry will be modified,
 -- renamed and deleted at the end.
 --
--- See Copyright Notice in license.html
+-- See Copyright Notice in license.md
 -- $Id: test.lua,v 1.15 2006-07-24 01:36:51 tomas Exp $
 ---------------------------------------------------------------------
 
