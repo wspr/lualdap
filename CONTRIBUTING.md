@@ -42,3 +42,5 @@ in the instructions below.
        `v${VERSION}` and `HEAD`
 - [ ] Commit these changes with message "Release v${VERSION}"
 - [ ] Tag this commit with `v${VERSION}`
+- [ ] Run `make rock` in order to create `lualdap-${LUAROCKS_VERSION}.src.rock`
+- [ ] Upload on <luarocks.org> the new `rockspec` and `src.rock`

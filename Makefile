@@ -1,6 +1,7 @@
 N= LuaLDAP
 T= lualdap
 V= 1.2.5
+R= 1
 PACKAGE_STRING=$(N) $(V)
 CONFIG= ./config
 
@@ -67,3 +68,6 @@ package_string:
 # build the project. So it can be used like
 # -DPACKAGE_STRING="\"$(shell make package_string)\""
 	@echo "$(PACKAGE_STRING)"
+
+rock:
+	luarocks pack rockspec/lualdap-$(V)-$(R).rockspec
