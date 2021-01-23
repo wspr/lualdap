@@ -896,7 +896,7 @@ static int lualdap_search_tostring (lua_State *L) {
 ** Create a metatable.
 */
 static int lualdap_createmeta (lua_State *L) {
-	const luaL_Reg methods[] = {
+	static const luaL_Reg methods[] = {
 		{"close", lualdap_close},
 #if !defined(WINLDAP)
 		{"bind_simple", lualdap_bind_simple},
@@ -1071,7 +1071,7 @@ static void set_info (lua_State *L) {
 ** Create ldap table and register the open method.
 */
 int luaopen_lualdap (lua_State *L) {
-	struct luaL_Reg lualdap[] = {
+	static const struct luaL_Reg lualdap[] = {
 #if !defined(WINLDAP)
 		{"initialize", lualdap_initialize},
 #endif
