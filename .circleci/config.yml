@@ -22,7 +22,9 @@ jobs:
           make deb
   build_win:
     description: "Build rock on Windows"
-    executor: win/default
+    executor:
+      name: win/default
+      shell: powershell.exe
     steps:
     - checkout
     - run:
@@ -42,6 +44,30 @@ jobs:
           bed/bin/activate.ps1
           lua -v
           lua tests/smoke.lua
+  build_make_win:
+    description: "Build Windows with Makefile"
+    executor:
+      name: win/default
+      shell: cmd.exe
+    steps:
+    - checkout
+    - run:
+        name: Install hererocks
+        command: |
+          pip install hererocks
+          hererocks bed --lua 5.4 --no-readline --verbose
+          hererocks bed --show
+    - run:
+        name: "Build (without install)"
+        command: |
+          "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\nmake.exe" /f Makefile.win src\lualdap.dll LUA_INC=bed\include LUA_LIB=bed\lib\lua54.lib
+    - run:
+        name: "Smoke"
+        command: |
+          bed\bin\activate.bat
+          lua -v
+          set LUA_CPATH=".\src\?.dll"
+          lua tests\smoke.lua
 workflows:
   version: 2
   build_deb:
@@ -51,4 +77,8 @@ workflows:
   build_win:
     jobs:
     - build_win:
-        name: "windows"
+        name: "windows (rock)"
+  build_make_win:
+    jobs:
+    - build_make_win:
+        name: "windows (Makefile)"
