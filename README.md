@@ -1,5 +1,5 @@
 
-![logo](doc/logo/lualdap-logo-512x512.png)
+![logo](docs/logo/lualdap-logo-512x512.png)
 
 # LuaLDAP
 
