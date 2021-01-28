@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>News - LuaLDAP</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <!-- Expander button -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="..">LuaLDAP</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li >
+                                <a href="..">Home</a>
+                            </li>
+                            <li >
+                                <a href="../manual/">Manual</a>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li class="active">
+    <a href="./">News</a>
+</li>
+                                    
+<li >
+    <a href="../contributors/">Contributors</a>
+</li>
+                                    
+<li >
+    <a href="../license/">License</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li >
+                                <a rel="next" href="../manual/">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li >
+                                <a rel="prev" href="../contributors/">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://github.com/lualdap/lualdap/edit/master/docs/news.md"><i class="fa fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#changelog">Changelog</a></li>
+            <li><a href="#unreleased">Unreleased</a></li>
+            <li><a href="#125-2019-01-06">1.2.5 - 2019-01-06</a></li>
+            <li><a href="#124-2019-01-02">1.2.4 - 2019-01-02</a></li>
+            <li><a href="#124-rc1-2018-12-22">1.2.4-rc1 - 2018-12-22</a></li>
+            <li><a href="#123-2015-04-09">1.2.3 - 2015-04-09</a></li>
+            <li><a href="#122-2014-07-26">1.2.2 - 2014-07-26</a></li>
+            <li><a href="#121-2014-06-29">1.2.1 - 2014-06-29</a></li>
+            <li><a href="#120-2014-02-21">1.2.0 - 2014-02-21</a></li>
+            <li><a href="#110-2007-12-14">1.1.0 - 2007-12-14</a></li>
+            <li><a href="#101-2006-04-04">1.0.1 - 2006-04-04</a></li>
+            <li><a href="#10-2005-06-10">1.0 - 2005-06-10</a></li>
+            <li><a href="#10-alpha-2003-12-10">1.0-alpha - 2003-12-10</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="changelog">Changelog</h1>
+<p>All notable changes to this project will be documented in this file.</p>
+<p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>,
+and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<h2 id="unreleased"><a href="https://github.com/lualdap/lualdap/compare/v1.2.5...HEAD">Unreleased</a></h2>
+<h3 id="added">Added</h3>
+<ul>
+<li>Lua 5.4 compatibility</li>
+<li>Updated documentation is available on <a href="https://lualdap.github.io/lualdap/">https://lualdap.github.io/lualdap/</a></li>
+</ul>
+<h3 id="fixed">Fixed</h3>
+<ul>
+<li>Fix case in Makefile when install directory does not exist</li>
+<li>WinLDAP variant</li>
+</ul>
+<h3 id="removed">Removed</h3>
+<ul>
+<li>Dropped the claim that we support OpenLDAP older than 2.3, which was not true since 3597ac91334dbaa912db391f5e9fd7a15a643686</li>
+</ul>
+<h2 id="125-2019-01-06"><a href="https://github.com/lualdap/lualdap/compare/v1.2.4...v1.2.5">1.2.5</a> - 2019-01-06</h2>
+<h3 id="changed">Changed</h3>
+<ul>
+<li><code>CPPFLAGS</code>, <code>CFLAGS</code> and <code>LDFLAGS</code> can now be overridden on the <code>make</code> command line.  It is not longer necessary to edit the <code>config</code> file.</li>
+</ul>
+<h3 id="removed_1">Removed</h3>
+<ul>
+<li>We no longer export a <code>lualdap</code> global variable, in accordance with Lua 5.2 module rules (#8)</li>
+<li>cf. https://www.lua.org/manual/5.2/manual.html#8.2</li>
+<li>Remove support for Lua 5.0 by including an external file outside the source directory</li>
+<li>Support for Lua 5.1 and 5.2 continues through our inclusion of lua-compat-5.3 (see release notes for v1.2.4-rc1)</li>
+</ul>
+<h2 id="124-2019-01-02"><a href="https://github.com/lualdap/lualdap/compare/v1.2.4-rc1...v1.2.4">1.2.4</a> - 2019-01-02</h2>
+<h3 id="added_1">Added</h3>
+<ul>
+<li>Build system additions to accomodate Debian</li>
+</ul>
+<h2 id="124-rc1-2018-12-22"><a href="https://github.com/lualdap/lualdap/compare/v1.2.3...v1.2.4-rc1">1.2.4-rc1</a> - 2018-12-22</h2>
+<h3 id="added_2">Added</h3>
+<ul>
+<li>Lua 5.3 compatibility</li>
+<li>Backwards compatibility using Kepler Project's <a href="https://github.com/keplerproject/lua-compat-5.3/">lua-compat-5.3</a></li>
+<li>Support specifying a URI in hostname argument to <code>open_simple()</code></li>
+</ul>
+<h3 id="changed_1">Changed</h3>
+<ul>
+<li>Switch to <a href="http://olivinelabs.com/busted/">busted</a> unit testing framework</li>
+<li>Automate building and running unit tests using <a href="http://circleci.com/">CircleCI</a></li>
+<li>Tests run against <a href="https://hub.docker.com/r/openshift/openldap-2441-centos7/">OpenShift's OpenLDAP 2.4.41</a> (<a href="https://github.com/openshift/openldap/">source</a>)</li>
+<li>Keep track of unit test coverage using <a href="http://codecov.io/">Codecov</a></li>
+</ul>
+<h3 id="fixed_1">Fixed</h3>
+<ul>
+<li>C89 compatibility</li>
+<li>Fix two credentials-related segfaults in <code>open_simple()</code></li>
+</ul>
+<h2 id="123-2015-04-09"><a href="https://github.com/lualdap/lualdap/compare/v1.2.2...v1.2.3">1.2.3</a> - 2015-04-09</h2>
+<h3 id="changed_2">Changed</h3>
+<ul>
+<li>documentation</li>
+</ul>
+<h2 id="122-2014-07-26"><a href="https://github.com/lualdap/lualdap/compare/v1.2.1...v1.2.2">1.2.2</a> - 2014-07-26</h2>
+<h3 id="changed_3">Changed</h3>
+<ul>
+<li><code>lualdap_bind_simple()</code> with OpenLDAP 2.3 API</li>
+</ul>
+<h2 id="121-2014-06-29"><a href="https://github.com/lualdap/lualdap/compare/v1.2.0...v1.2.1">1.2.1</a> - 2014-06-29</h2>
+<h3 id="added_3">Added</h3>
+<ul>
+<li>from prosody.im, new function <code>initialize</code> and new method <code>bind_simple</code></li>
+</ul>
+<h2 id="120-2014-02-21"><a href="https://github.com/lualdap/lualdap/compare/v1_1_0...v1.2.0">1.2.0</a> - 2014-02-21</h2>
+<h3 id="added_4">Added</h3>
+<ul>
+<li>Lua 5.2 compatibility</li>
+<li>OpenLDAP 2.3 compatibility</li>
+<li>rockspec</li>
+</ul>
+<h2 id="110-2007-12-14">1.1.0 - 2007-12-14</h2>
+<h3 id="added_5">Added</h3>
+<ul>
+<li>support ADSI (WinLDAP) (Thanks to Mark Edgar)</li>
+</ul>
+<h2 id="101-2006-04-04">1.0.1 - 2006-04-04</h2>
+<h2 id="10-2005-06-10">1.0 - 2005-06-10</h2>
+<h2 id="10-alpha-2003-12-10">1.0-alpha - 2003-12-10</h2></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Contributors - LuaLDAP</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <!-- Expander button -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="..">LuaLDAP</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li >
+                                <a href="..">Home</a>
+                            </li>
+                            <li >
+                                <a href="../manual/">Manual</a>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li >
+    <a href="../news/">News</a>
+</li>
+                                    
+<li class="active">
+    <a href="./">Contributors</a>
+</li>
+                                    
+<li >
+    <a href="../license/">License</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li >
+                                <a rel="next" href="../news/">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li >
+                                <a rel="prev" href="../license/">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://github.com/lualdap/lualdap/edit/master/docs/contributors.md"><i class="fa fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#contributors">Contributors</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="contributors">Contributors</h1>
+<p>LuaLDAP was originally created by the <a href="http://www.keplerproject.org/">Kepler Project</a>
+ (designed and implemented by Roberto Ierusalimschy, Andr&eacute; Carregal and Tom&aacute;s Guisasola).</p>
+<p>A CVS-to-Git conversion was done by <a href="http://luaforge.net/">LuaForge</a>
+from their <a href="http://luaforge.net/projects/lualdap/">project</a>
+to a <a href="https://github.com/luaforge/lualdap">GitHub repository</a>.</p>
+<p>From there, the community took over and moved in a new repository
+under the <a href="https://github.com/lualdap">LuaLDAP GitHub organisation</a>.
+The following maintainers curated fixes, improvements and releases:</p>
+<ul>
+<li><a href="https://github.com/bdellegrazie">Brett Delle Grazie</a> : 2014 - 2015</li>
+<li><a href="https://github.com/devurandom">Dennis Schridde</a> : 2017 - 2019</li>
+<li><a href="https://github.com/fperrad">Fran&ccedil;ois Perrad</a> : 2021</li>
+</ul>
+<p>Significant contributions were made by (in order of appearance):</p>
+<ul>
+<li><a href="https://github.com/mwild1">Matthew Wild</a> <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#109;&#119;&#105;&#108;&#100;&#49;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#109;&#119;&#105;&#108;&#100;&#49;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>: Bugfixes; curation of community patches</li>
+<li><a href="https://github.com/devurandom">Dennis Schridde</a> <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#100;&#101;&#118;&#117;&#114;&#97;&#110;&#100;&#111;&#109;&#64;&#103;&#109;&#120;&#46;&#110;&#101;&#116;">&#100;&#101;&#118;&#117;&#114;&#97;&#110;&#100;&#111;&#109;&#64;&#103;&#109;&#120;&#46;&#110;&#101;&#116;</a>: Lua 5.1, 5.2, 5.3 compatibility; OpenLDAP 2.3 compatibility; initial CircleCI and Codecov setup; bugfixes; curation of community patches</li>
+<li>Michael Bienia <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#103;&#101;&#115;&#101;&#114;&#64;&#117;&#98;&#117;&#110;&#116;&#117;&#46;&#99;&#111;&#109;">&#103;&#101;&#115;&#101;&#114;&#64;&#117;&#98;&#117;&#110;&#116;&#117;&#46;&#99;&#111;&#109;</a>, Micah Gersten <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#109;&#105;&#99;&#97;&#104;&#103;&#64;&#117;&#98;&#117;&#110;&#116;&#117;&#46;&#99;&#111;&#109;">&#109;&#105;&#99;&#97;&#104;&#103;&#64;&#117;&#98;&#117;&#110;&#116;&#117;&#46;&#99;&#111;&#109;</a>, Luca Capello <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#108;&#117;&#99;&#97;&#64;&#112;&#99;&#97;&#46;&#105;&#116;">&#108;&#117;&#99;&#97;&#64;&#112;&#99;&#97;&#46;&#105;&#116;</a>: <a href="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=722175">Bugfix for Debian</a></li>
+<li><a href="https://github.com/jprjr">John Regan</a> <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#106;&#111;&#104;&#110;&#64;&#106;&#114;&#106;&#114;&#116;&#101;&#99;&#104;&#46;&#99;&#111;&#109;">&#106;&#111;&#104;&#110;&#64;&#106;&#114;&#106;&#114;&#116;&#101;&#99;&#104;&#46;&#99;&#111;&#109;</a>: Initial Rockspec</li>
+<li><a href="https://github.com/danc86">Dan Callaghan</a> <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#100;&#106;&#99;&#64;&#100;&#106;&#99;&#46;&#105;&#100;&#46;&#97;&#117;">&#100;&#106;&#99;&#64;&#100;&#106;&#99;&#46;&#105;&#100;&#46;&#97;&#117;</a>: Initial test harness using a live OpenLDAP server; bugfixes</li>
+<li><a href="https://github.com/bdellegrazie">Brett Delle Grazie</a> <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#98;&#114;&#101;&#116;&#116;&#46;&#100;&#101;&#108;&#108;&#101;&#103;&#114;&#97;&#122;&#105;&#101;&#64;&#105;&#110;&#100;&#105;&#103;&#111;&#98;&#108;&#117;&#101;&#46;&#99;&#111;&#46;&#117;&#107;">&#98;&#114;&#101;&#116;&#116;&#46;&#100;&#101;&#108;&#108;&#101;&#103;&#114;&#97;&#122;&#105;&#101;&#64;&#105;&#110;&#100;&#105;&#103;&#111;&#98;&#108;&#117;&#101;&#46;&#99;&#111;&#46;&#117;&#107;</a>: Documentation updates; curation of community patches</li>
+<li><a href="https://github.com/jirutka">Jakub Jirutka</a> <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#106;&#97;&#107;&#117;&#98;&#64;&#106;&#105;&#114;&#117;&#116;&#107;&#97;&#46;&#99;&#122;">&#106;&#97;&#107;&#117;&#98;&#64;&#106;&#105;&#114;&#117;&#116;&#107;&#97;&#46;&#99;&#122;</a>: Initial Travis CI setup; bugfixes</li>
+<li><a href="https://github.com/linuxmaniac">Victor Seva</a> <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#108;&#105;&#110;&#117;&#120;&#109;&#97;&#110;&#105;&#97;&#99;&#64;&#116;&#111;&#114;&#114;&#101;&#118;&#105;&#101;&#106;&#97;&#119;&#105;&#114;&#101;&#108;&#101;&#115;&#115;&#46;&#111;&#114;&#103;">&#108;&#105;&#110;&#117;&#120;&#109;&#97;&#110;&#105;&#97;&#99;&#64;&#116;&#111;&#114;&#114;&#101;&#118;&#105;&#101;&#106;&#97;&#119;&#105;&#114;&#101;&#108;&#101;&#115;&#115;&#46;&#111;&#114;&#103;</a>: <code>lualdap</code> global variable only with Lua 5.1</li>
+<li><a href="https://github.com/fperrad">Fran&ccedil;ois Perrad</a> <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#102;&#114;&#97;&#110;&#99;&#111;&#105;&#115;&#46;&#112;&#101;&#114;&#114;&#97;&#100;&#64;&#103;&#97;&#100;&#122;&#46;&#111;&#114;&#103;">&#102;&#114;&#97;&#110;&#99;&#111;&#105;&#115;&#46;&#112;&#101;&#114;&#114;&#97;&#100;&#64;&#103;&#97;&#100;&#122;&#46;&#111;&#114;&#103;</a>: Lua 5.4 compatiblity, fix WinLDAP</li>
+<li><a href="https://github.com/daurnimator">Daurnimator</a> - Cleanup</li>
+</ul></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

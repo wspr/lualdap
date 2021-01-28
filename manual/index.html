@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Manual - LuaLDAP</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <!-- Expander button -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="..">LuaLDAP</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li >
+                                <a href="..">Home</a>
+                            </li>
+                            <li class="active">
+                                <a href="./">Manual</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li >
+    <a href="../news/">News</a>
+</li>
+                                    
+<li >
+    <a href="../contributors/">Contributors</a>
+</li>
+                                    
+<li >
+    <a href="../license/">License</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li >
+                                <a rel="next" href="..">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li >
+                                <a rel="prev" href="../news/">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://github.com/lualdap/lualdap/edit/master/docs/manual.md"><i class="fa fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#introduction">Introduction</a></li>
+        <li class="main "><a href="#representing-attributes">Representing attributes</a></li>
+        <li class="main "><a href="#distinguished-names">Distinguished names</a></li>
+        <li class="main "><a href="#initialization-functions">Initialization functions</a></li>
+            <li><a href="#lualdapopen_simple-hostname-who-password-usetls">lualdap.open_simple (hostname, who, password, usetls)</a></li>
+            <li><a href="#lualdapinitialize-uri">lualdap.initialize (uri)</a></li>
+        <li class="main "><a href="#connection-objects">Connection objects</a></li>
+            <li><a href="#methods">Methods</a></li>
+        <li class="main "><a href="#example">Example</a></li>
+        <li class="main "><a href="#related-documentation">Related documentation</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="introduction">Introduction</h1>
+<p>LuaLDAP is a simple interface from Lua to an LDAP client, in fact
+it is a bind to <a href="https://www.openldap.org">OpenLDAP</a> client
+or <a href="https://docs.microsoft.com/en-us/windows/win32/adsi/about-adsi">ADSI</a>.</p>
+<p>LuaLDAP defines one single global variable: a table called <code>lualdap</code>.
+This table holds the functions used to create an LDAP connection object.</p>
+<p>A connection object offers methods to perform any operation on
+the directory such as comparing values, adding new entries,
+modifying attributes on existing entries, removing entries,
+and the most common of all: searching.
+Entries are represented as Lua tables; attributes are its fields.
+The attribute values can be strings or tables of strings
+(used to represent multiple values).</p>
+<h1 id="representing-attributes">Representing attributes</h1>
+<p>Many LDAP operations manage sets of attributes and values.
+LuaLDAP provides a uniform way of representing them by using Lua tables.
+The table attributes can be Lua string, a binary string (a string of bits),
+or table of <em>n</em> values indexed from 1 to <em>n</em>.
+Some operations have different approaches that will be explained as necessary.</p>
+<p>Here is a simple example:</p>
+<pre><code class="lua">entry = {
+    an_attribute = &quot;a value&quot;,
+    other_attribute = {
+        &quot;first value of other attribute&quot;,
+        &quot;another value of other attribute&quot;,
+    },
+}
+</code></pre>
+
+<p>Attribute names cannot contain the <code>'\0'</code> character.</p>
+<h1 id="distinguished-names">Distinguished names</h1>
+<p>The distinguished name (DN) is the term used to identify an entry
+on the directory information tree.
+It is formed by the relative distinguished name (RDN) of the entry
+and the distinguished name of its parent.
+LuaLDAP will always use a string to represent the DN of any entry.</p>
+<p>A more precise definition can be found on the LDAP documentation.
+A list of some of these files can be found
+in <a href="./#related-documentation">Related documentation</a> section.</p>
+<h1 id="initialization-functions">Initialization functions</h1>
+<p>LuaLDAP provides a single way to connect to an LDAP server:</p>
+<h3 id="lualdapopen_simple-hostname-who-password-usetls"><code>lualdap.open_simple (hostname, who, password, usetls)</code></h3>
+<p>Initializes a session with an LDAP server.</p>
+<p>This function requires a hostname, accordingly to the
+<a href="https://www.ietf.org/proceedings/51/I-D/draft-ietf-ldapext-ldap-c-api-05.txt">C LDAP API</a>
+definition (<em>"hostname contains a space-separated list of hostnames
+or dotted strings representing the IP address of hosts running an LDAP server to connect to.
+Each hostname in the list MAY include a port number which is separated
+from the host itself with a colon (:) character."</em>).</p>
+<p>The argument <code>who</code> should be the <a href="./#distinguished-names">distinguished name</a>
+of the entry that has the password to be checked against
+the third argument, <code>password</code>.</p>
+<p>The optional argument <code>usetls</code> is a Boolean flag indicating
+if Transport Layer Security (TLS) should be used.</p>
+<p>Returns a connection object if the operation was successful.
+In case of error it returns <code>nil</code> followed by an error string.</p>
+<h3 id="lualdapinitialize-uri"><code>lualdap.initialize (uri)</code></h3>
+<p>Open and initialize a connection to a server (without binding).</p>
+<p>Returns a connection object if the operation was successful.</p>
+<h1 id="connection-objects">Connection objects</h1>
+<p>A connection object offers methods which implement LDAP operations.
+Almost all of them need a <a href="./#distinguished-names">distinguished name</a>
+to identify the entry on which the operation will be executed.</p>
+<p>These methods execute asynchronous operations and return a function
+that should be called to obtain the results.
+The called functions will return <code>true</code> indicating the success of the operation.
+The only exception is the <code>compare</code> function which can return
+either <code>true</code> or <code>false</code> (as the result of the comparison) on a successful operation.</p>
+<p>There are two types of errors:
+<strong>API errors</strong>, such as wrong parameters, absent connection etc.;
+and <strong>LDAP errors</strong>, such as malformed DN, unknown attribute etc.
+API errors will raise a Lua error,
+while LDAP errors will be reported by the function/method returning <code>nil</code>
+plus the error message provided by the OpenLDAP client.</p>
+<p>A connection object can be created by calling the
+<a href="./#initialization-functions">Initialization function</a>.</p>
+<h2 id="methods">Methods</h2>
+<h3 id="connadd-distinguished_name-table_of_attributes"><code>conn:add (distinguished_name, table_of_attributes)</code></h3>
+<p>Adds a new entry to the directory with the given attributes and values.</p>
+<h3 id="connbind_simple-username-password"><code>conn:bind_simple (username, password)</code></h3>
+<p>Bind to the directory.</p>
+<h3 id="connclose"><code>conn:close ()</code></h3>
+<p>Closes the connection <code>conn</code>.</p>
+<h3 id="conncompare-distinguished_name-attribute-value"><code>conn:compare (distinguished_name, attribute, value)</code></h3>
+<p>Compares a value to an entry.</p>
+<h3 id="conndelete-distinguished_name"><code>conn:delete (distinguished_name)</code></h3>
+<p>Deletes an entry from the directory.</p>
+<h3 id="connmodify-distinguished_name-table_of_operations"><code>conn:modify (distinguished_name, table_of_operations*)</code></h3>
+<p>Changes the values of attributes in the given entry.
+The tables of operations are <a href="./#representing-attributes">tables of attributes</a>
+with the value on index <code>1</code> indicating the operation to be performed.
+The valid operations are: </p>
+<ul>
+<li><code>+</code> to add the values to the attributes</li>
+<li><code>-</code> to delete the values of the attributes</li>
+<li><code>=</code> to replace the values of the attributes</li>
+</ul>
+<p>Any number of tables of operations will be used in a single LDAP modify operation.</p>
+<h3 id="connrename-distinguished_name-new_relative_dn-new_parent"><code>conn:rename (distinguished_name, new_relative_dn, new_parent)</code></h3>
+<p>Changes an entry name (i.e. change its <a href="./#distinguished-names">distinguished name</a>).</p>
+<h3 id="connsearch-table_of_search_parameters"><code>conn:search (table_of_search_parameters)</code></h3>
+<p>Performs a search operation on the directory.
+The parameters are described below:</p>
+<ul>
+<li>
+<p><code>attrs</code></p>
+<p>a string or a list of attribute names to be retrieved (default is to retrieve all attributes).</p>
+</li>
+<li>
+<p><code>attrsonly</code></p>
+<p>a Boolean value that must be either <em>false</em> (default)
+ if both attribute names and values are to be retrieved,
+ or <em>true</em> if only names are wanted.</p>
+</li>
+<li>
+<p><code>base</code></p>
+<p>The <a href="./#distinguished-names">distinguished name</a> of the entry at which to start the search.</p>
+</li>
+<li>
+<p><code>filter</code></p>
+<p>A string representing the search filter as described in
+ <a href="https://tools.ietf.org/html/rfc4515">String Representation of LDAP Search Filters</a></p>
+</li>
+<li>
+<p><code>scope</code></p>
+<p>A string indicating the scope of the search.
+ The valid strings are: <code>base</code>, <code>onelevel</code> and <code>subtree</code>.
+ The empty string (<code>""</code>) and <code>nil</code> will be treated as the default scope.</p>
+</li>
+<li>
+<p><code>sizelimit</code></p>
+<p>The maximum number of entries to return (default is no limit).</p>
+</li>
+<li>
+<p><code>timeout</code></p>
+<p>The timeout in seconds (default is no timeout).
+  The precision is microseconds.</p>
+</li>
+</ul>
+<p>The search method will return a <em>search iterator</em> which is a function
+that requires no arguments.
+The search iterator is used to get the search result
+and will return a string representing the
+<a href="./#distinguished-names">distinguished name</a>
+and a <a href="./#representing-attributes">table of attributes</a>
+as returned by the search request.</p>
+<h1 id="example">Example</h1>
+<p>here is a some sample code that demonstrate the basic use of the library.</p>
+<pre><code class="lua">local lualdap = require &quot;lualdap&quot;
+
+local ld = assert (lualdap.open_simple (&quot;ldap.server&quot;,
+                &quot;mydn=manoeljoaquim,ou=people,dc=ldap,dc=world&quot;,
+                &quot;mysecurepassword&quot;))
+
+for dn, attribs in ld:search { base = &quot;ou=people,dc=ldap,dc=world&quot; } do
+    io.write (string.format (&quot;\t[%s]\n&quot;, dn))
+    for name, values in pairs (attribs) do
+        io.write (&quot;[&quot;..name..&quot;] : &quot;)
+        if type (values) == &quot;string&quot; then
+            io.write (values)
+        elseif type (values) == &quot;table&quot; then
+            local n = #values
+            for i = 1, (n-1) do
+                io.write (values[i]..&quot;,&quot;)
+            end
+            io.write (values[n])
+        end
+        io.write (&quot;\n&quot;)
+    end
+end
+
+ld:add (&quot;mydn=newuser,ou=people,dc=ldap,dc=world&quot;, {
+    objectClass = { &quot;&quot;, &quot;&quot;, },
+    mydn = &quot;newuser&quot;,
+    abc = &quot;qwerty&quot;,
+    tel = { &quot;123456758&quot;, &quot;98765432&quot;, },
+    givenName = &quot;New User&quot;,
+})()
+
+ld:modify {&quot;mydn=newuser,ou=people,dc=ldp,dc=world&quot;,
+    { '=', givenName = &quot;New&quot;, cn = &quot;New&quot;, sn = &quot;User&quot;, },
+    { '+', o = { &quot;University&quot;, &quot;College&quot;, },
+           mail = &quot;newuser@university.edu&quot;, },
+    { '-', abc = true, tel = &quot;123456758&quot;, },
+    { '+', tel = &quot;13579113&quot;, },
+}()
+
+ld:delete (&quot;mydn=newuser,ou=people,dc=ldp,dc=world&quot;)()
+</code></pre>
+
+<h1 id="related-documentation">Related documentation</h1>
+<ul>
+<li><a href="https://tools.ietf.org/html/rfc4511">Lightweight Directory Access Protocol (LDAP): The Protocol</a></li>
+<li><a href="https://tools.ietf.org/html/rfc4510">Lightweight Directory Access Protocol (LDAP): Technical Specification</a></li>
+<li><a href="https://tools.ietf.org/html/rfc4515">Lightweight Directory Access Protocol (LDAP): String Representation of Search Filters</a></li>
+<li><a href="https://www.ietf.org/proceedings/51/I-D/draft-ietf-ldapext-ldap-c-api-05.txt">The C LDAP Application Program Interface</a></li>
+<li><a href="https://openldap.org/software/man.cgi?query=ldap">OpenLDAP API</a></li>
+<li><a href="https://docs.microsoft.com/en-us/windows/win32/api/_ldap/">WinLDAP API</a></li>
+</ul></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
