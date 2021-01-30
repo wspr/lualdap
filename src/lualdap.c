@@ -894,7 +894,15 @@ static int lualdap_search_tostring (lua_State *L) {
 /*
 ** Create a metatable.
 */
-static int lualdap_createmeta (lua_State *L) {
+static void lualdap_createmeta_conn (lua_State *L) {
+	static const luaL_Reg metamethods[] = {
+		{"__gc", lualdap_close},
+		{"__tostring", lualdap_conn_tostring},
+		/* placeholders */
+		{"__index", NULL},
+		{"__metatable", NULL},
+		{NULL, NULL}
+	};
 	static const luaL_Reg methods[] = {
 		{"close", lualdap_close},
 #if !defined(WINLDAP)
@@ -909,38 +917,41 @@ static int lualdap_createmeta (lua_State *L) {
 		{NULL, NULL}
 	};
 
-	if (!luaL_newmetatable (L, LUALDAP_CONNECTION_METATABLE))
-		return 0;
+	luaL_newmetatable (L, LUALDAP_CONNECTION_METATABLE);
+	luaL_setfuncs(L, metamethods, 0);  /* add metamethods to new metatable */
 
-	/* define methods */
-	luaL_setfuncs(L, methods, 0);
-
-	/* define metamethods */
-	lua_pushcfunction (L, lualdap_close);
-	lua_setfield (L, -2, "__gc");
-
-	lua_pushvalue (L, -1);
-	lua_setfield (L, -2, "__index");
-
-	lua_pushcfunction (L, lualdap_conn_tostring);
-	lua_setfield (L, -2, "__tostring");
+	luaL_newlibtable(L, methods);  /* create method table */
+	luaL_setfuncs(L, methods, 0);  /* add file methods to method table */
+	lua_setfield(L, -2, "__index");  /* metatable.__index = method table */
 
 	lua_pushliteral(L,LUALDAP_PREFIX"you're not allowed to get this metatable");
 	lua_setfield (L, -2, "__metatable");
 
-	if (!luaL_newmetatable (L, LUALDAP_SEARCH_METATABLE))
-		return 0;
+	lua_pop(L, 1);  /* pop metatable */
+	return;
+}
 
-	lua_pushcfunction (L, lualdap_search_close);
-	lua_setfield (L, -2, "__gc");
 
-	lua_pushcclosure (L, lualdap_search_tostring, 1);
-	lua_setfield (L, -2, "__tostring");
+/*
+** Create a metatable.
+*/
+static void lualdap_createmeta_search (lua_State *L) {
+	static const luaL_Reg metamethods[] = {
+		{"__gc", lualdap_search_close},
+		{"__tostring", lualdap_search_tostring},
+		/* placeholders */
+		{"__metatable", NULL},
+		{NULL, NULL}
+	};
+
+	luaL_newmetatable (L, LUALDAP_SEARCH_METATABLE);
+	luaL_setfuncs(L, metamethods, 0);  /* add metamethods to new metatable */
 
 	lua_pushliteral(L,LUALDAP_PREFIX"you're not allowed to get this metatable");
 	lua_setfield (L, -2, "__metatable");
 
-	return 0;
+	lua_pop(L, 1);  /* pop metatable */
+	return;
 }
 
 
@@ -1069,7 +1080,8 @@ int luaopen_lualdap (lua_State *L) {
 		{NULL, NULL},
 	};
 
-	lualdap_createmeta (L);
+	lualdap_createmeta_conn (L);
+	lualdap_createmeta_search (L);
 	luaL_newlib(L, lualdap);
 /*
    In Lua 5.2 "modules are not expected to set global variables":
