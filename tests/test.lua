@@ -117,7 +117,7 @@ end
 ---------------------------------------------------------------------
 -- object test.
 ---------------------------------------------------------------------
-local function test_object (obj, objmethods)
+local function test_object (obj, objmethods, pattern)
 	-- checking object type.
 	it("is a userdata object", function()
 		assert.is_userdata(obj)
@@ -140,6 +140,11 @@ local function test_object (obj, objmethods)
 			assert.is_false(pcall(method))
 		end)
 	end
+	-- checking __tostring
+	local str = tostring(obj)
+	it("call its __tostring", function()
+		assert.is_string(str:match(pattern))
+	end)
 	return obj
 end
 
@@ -147,7 +152,7 @@ local CONN_OK = function (obj, err)
 	if obj == nil then
 		error (err, 2)
 	end
-	return test_object (obj, { "close", "add", "compare", "delete", "modify", "rename", "search", })
+	return test_object (obj, { "close", "add", "compare", "delete", "modify", "rename", "search", }, '^LuaLDAP connection %(0x%x+%)$')
 end
 
 ---------------------------------------------------------------------
@@ -160,6 +165,9 @@ describe("basics", function()
 	end)
 	it("can close connection", function()
 		assert.is_same(1, ld:close())
+	end)
+	it("show as closed", function()
+		assert.is_same(tostring(ld), "LuaLDAP connection (closed)")
 	end)
 	it("cannot close without a connection", function()
 		assert.is_false(pcall(ld.close))
@@ -241,7 +249,7 @@ end)
 -- checking basic search operation.
 ---------------------------------------------------------------------
 describe("basic search operation", function()
-	local iter
+	local iter, upvalue
 
 	setup(function()
 		local _,_,rdn = string.find (WHO, "^([^,]+)%,.*$")
@@ -251,6 +259,7 @@ describe("basic search operation", function()
 			sizelimit = 1,
 			filter = "("..rdn..")",
 		}
+		_, upvalue = debug.getupvalue(iter, 1)
 		collectgarbage()
 	end)
 	it("search returns something", function()
@@ -258,6 +267,15 @@ describe("basic search operation", function()
 	end)
 	it("search returns future", function()
 		assert.is_calleable(iter)
+	end)
+	it("the upvalue is a LuaLDAP search", function()
+		if upvalue then
+			local str = tostring(upvalue)
+			assert.is_userdata(upvalue)
+			assert.is_string(str:match('^LuaLDAP search %(0x%x+%)$'))
+		else
+			assert.is_nil(upvalue)  -- PUC Lua 5.1
+		end
 	end)
 	CONN_OK (LD)
 	it("search result iterator returns DN and value", function()
