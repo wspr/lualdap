@@ -104,7 +104,6 @@ static int faildirect (lua_State *L, const char *errmsg) {
 */
 static conn_data *getconnection (lua_State *L) {
 	conn_data *conn = (conn_data *)luaL_checkudata (L, 1, LUALDAP_CONNECTION_METATABLE);
-	luaL_argcheck(L, conn!=NULL, 1, LUALDAP_PREFIX"LDAP connection expected");
 	luaL_argcheck(L, conn->ld, 1, LUALDAP_PREFIX"LDAP connection is closed");
 	return conn;
 }
@@ -464,7 +463,6 @@ static int create_future (lua_State *L, ldap_int_t rc, int conn, ldap_int_t msgi
 */
 static int lualdap_close (lua_State *L) {
 	conn_data *conn = (conn_data *)luaL_checkudata (L, 1, LUALDAP_CONNECTION_METATABLE);
-	luaL_argcheck(L, conn!=NULL, 1, LUALDAP_PREFIX"LDAP connection expected");
 	if (conn->ld == NULL) /* already closed */
 		return 0;
 #if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
@@ -780,7 +778,6 @@ static int string2scope (lua_State *L, const char *s) {
 */
 static int lualdap_search_close (lua_State *L) {
 	search_data *search = (search_data *)luaL_checkudata (L, 1, LUALDAP_SEARCH_METATABLE);
-	luaL_argcheck (L, search!=NULL, 1, LUALDAP_PREFIX"LDAP search expected");
 	if (search->conn == LUA_NOREF)
 		return 0;
 	search_close (L, search);
@@ -878,7 +875,6 @@ static int lualdap_conn_tostring (lua_State *L) {
 */
 static int lualdap_search_tostring (lua_State *L) {
 	search_data *search = luaL_checkudata(L, 1, LUALDAP_SEARCH_METATABLE);
-	luaL_argcheck (L,search->conn!=LUA_NOREF,1,LUALDAP_PREFIX"LDAP search is closed");
 	if (search->conn == LUA_NOREF)
 		lua_pushfstring (L, "%s (closed)", LUALDAP_SEARCH_METATABLE);
 	else
