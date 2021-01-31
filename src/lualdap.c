@@ -3,9 +3,7 @@
 ** See Copyright Notice in license.md
 */
 
-#include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #ifdef WIN32
 #include <Winsock2.h>
@@ -16,7 +14,7 @@
 #ifdef WINLDAP
 #include "open2winldap.h"
 #else
-#include "ldap.h"
+#include <ldap.h>
 #endif
 
 #include <lua.h>
