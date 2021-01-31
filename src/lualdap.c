@@ -223,6 +223,7 @@ static void A_init (attrs_data *attrs) {
 ** Increment the bvals counter.
 */
 static BerValue *A_setbval (lua_State *L, attrs_data *a, const char *n) {
+	size_t len;
 	BerValue *ret = &(a->bvals[a->bi]);
 	if (a->bi >= LUALDAP_MAX_VALUES) {
 		luaL_error (L, LUALDAP_PREFIX"too many values");
@@ -231,8 +232,8 @@ static BerValue *A_setbval (lua_State *L, attrs_data *a, const char *n) {
 		value_error (L, n);
 		return NULL;
 	}
-	a->bvals[a->bi].bv_len = lua_rawlen (L, -1);
-	a->bvals[a->bi].bv_val = (char *)lua_tostring (L, -1);
+	a->bvals[a->bi].bv_val = (char *)lua_tolstring (L, -1, &len);
+	a->bvals[a->bi].bv_len = len;
 	a->bi++;
 	return ret;
 }
@@ -537,8 +538,9 @@ static int lualdap_compare (lua_State *L) {
 	ldap_pchar_t attr = (ldap_pchar_t) luaL_checkstring (L, 3);
 	BerValue bvalue;
 	ldap_int_t rc, msgid;
-	bvalue.bv_val = (char *)luaL_checkstring (L, 4);
-	bvalue.bv_len = lua_rawlen (L, 4);
+	size_t len;
+	bvalue.bv_val = (char *)luaL_checklstring (L, 4, &len);
+	bvalue.bv_len = len;
 	rc = ldap_compare_ext (conn->ld, dn, attr, &bvalue, NULL, NULL, &msgid);
 	return create_future (L, rc, 1, msgid, LDAP_RES_COMPARE);
 }
