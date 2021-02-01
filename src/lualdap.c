@@ -129,9 +129,9 @@ static int option_error (lua_State *L, const char *name, const char *type) {
 /*
 ** Get the field called name of the table at position 2.
 */
-static void strgettable (lua_State *L, int idx, const char *name) {
+static void strgettable (lua_State *L, const char *name) {
 	lua_pushstring (L, name);
-	lua_gettable (L, idx);
+	lua_gettable (L, 2);
 }
 
 
@@ -139,8 +139,8 @@ static void strgettable (lua_State *L, int idx, const char *name) {
 ** Get the field named name as a string.
 ** The table MUST be at position 2.
 */
-static const char *strtabparam (lua_State *L, int idx, const char *name, char *def) {
-	strgettable (L, idx, name);
+static const char *strtabparam (lua_State *L, const char *name, char *def) {
+	strgettable (L, name);
 	if (lua_isnil (L, -1))
 		return def;
 	else if (lua_isstring (L, -1))
@@ -156,8 +156,8 @@ static const char *strtabparam (lua_State *L, int idx, const char *name, char *d
 ** Get the field named name as an integer.
 ** The table MUST be at position 2.
 */
-static long longtabparam (lua_State *L, int idx, const char *name, int def) {
-	strgettable (L, idx, name);
+static long longtabparam (lua_State *L, const char *name, int def) {
+	strgettable (L, name);
 	if (lua_isnil (L, -1))
 		return def;
 	else if (lua_isnumber (L, -1))
@@ -171,8 +171,8 @@ static long longtabparam (lua_State *L, int idx, const char *name, int def) {
 ** Get the field named name as a double.
 ** The table MUST be at position 2.
 */
-static double numbertabparam (lua_State *L, int idx, const char *name, double def) {
-	strgettable (L, idx, name);
+static double numbertabparam (lua_State *L, const char *name, double def) {
+	strgettable (L, name);
 	if (lua_isnil (L, -1))
 		return def;
 	else if (lua_isnumber (L, -1))
@@ -187,7 +187,7 @@ static double numbertabparam (lua_State *L, int idx, const char *name, double de
 ** The table MUST be at position 2.
 */
 static int booltabparam (lua_State *L, const char *name, int def) {
-	strgettable (L, 2, name);
+	strgettable (L, name);
 	if (lua_isnil (L, -1))
 		return def;
 	else if (lua_isboolean (L, -1))
@@ -808,8 +808,8 @@ static int get_attrs_param (lua_State *L, char *attrs[]) {
 /*
 ** Fill in the struct timeval, according to the timeout parameter.
 */
-static struct timeval *get_timeout_param (lua_State *L, int idx, struct timeval *st) {
-	double t = numbertabparam (L, idx, "timeout", 0);
+static struct timeval *get_timeout_param (lua_State *L, struct timeval *st) {
+	double t = numbertabparam (L, "timeout", 0);
 	st->tv_sec = (long)t;
 	st->tv_usec = (long)(1000000 * (t - st->tv_sec));
 	if (st->tv_sec == 0 && st->tv_usec == 0)
@@ -840,11 +840,11 @@ static int lualdap_search (lua_State *L) {
 		return 2;
 	/* get other parameters */
 	attrsonly = booltabparam (L, "attrsonly", 0);
-	base = (ldap_pchar_t) strtabparam (L, 2, "base", NULL);
-	filter = (ldap_pchar_t) strtabparam (L, 2, "filter", NULL);
-	scope = string2scope (L, strtabparam (L, 2, "scope", NULL));
-	sizelimit = longtabparam (L, 2, "sizelimit", LDAP_NO_LIMIT);
-	timeout = get_timeout_param (L, 2, &st);
+	base = (ldap_pchar_t) strtabparam (L, "base", NULL);
+	filter = (ldap_pchar_t) strtabparam (L, "filter", NULL);
+	scope = string2scope (L, strtabparam (L, "scope", NULL));
+	sizelimit = longtabparam (L, "sizelimit", LDAP_NO_LIMIT);
+	timeout = get_timeout_param (L, &st);
 
 	rc = ldap_search_ext (conn->ld, base, scope, filter, attrs, attrsonly,
 		NULL, NULL, timeout, sizelimit, &msgid);
