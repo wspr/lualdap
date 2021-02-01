@@ -3,8 +3,8 @@ LUA := lua
 # Lua version number (first and second digits of target version)
 LUA_VERSION := $(shell $(LUA) -e 'print(_VERSION:match("%S+%s+(%S+)"))')
 
-# Lua library
-LUA_LIB = -llua$(LUA_VERSION)
+# Lua library (set LUA_LIB explicitly, if required)
+LUA_LIB = # -llua$(LUA_VERSION)
 # Lua library directory
 LUA_LIBDIR = /usr/lib
 # Lua include directory
