@@ -809,13 +809,12 @@ static int get_attrs_param (lua_State *L, char *attrs[]) {
 ** Fill in the struct timeval, according to the timeout parameter.
 */
 static struct timeval *get_timeout_param (lua_State *L, struct timeval *st) {
-	double t = numbertabparam (L, "timeout", 0);
+	double t = numbertabparam (L, "timeout", 0.0);
+	if(t <= 0.0)
+		return NULL; /* No timeout, block */
 	st->tv_sec = (long)t;
-	st->tv_usec = (long)(1000000 * (t - st->tv_sec));
-	if (st->tv_sec == 0 && st->tv_usec == 0)
-		return NULL;
-	else
-		return st;
+	st->tv_usec = (long)(1000000.0 * (t - (double)st->tv_sec));
+	return st;
 }
 
 
