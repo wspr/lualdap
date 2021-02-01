@@ -376,25 +376,13 @@ static int table2strarray (lua_State *L, int tab, char *array[], int limit) {
 
 
 /*
-** Fill in the struct timeval, according to the timeout parameter.
-*/
-static struct timeval *get_timeout_param (lua_State *L, int idx, struct timeval *st) {
-	double t = numbertabparam (L, idx, "timeout", -1);
-	if(t < 0)
-		return NULL; /* No timeout, block */
-	st->tv_sec = (long)t;
-	st->tv_usec = (long)(1000000 * (t - st->tv_sec));
-	return st;
-}
-
-/*
 ** Get the result message of an operation.
 ** #1 upvalue == connection
 ** #2 upvalue == msgid
 ** #3 upvalue == result code of the message (ADD, DEL etc.) to be received.
 */
 static int result_message (lua_State *L) {
-	struct timeval timeout;
+	struct timeval *timeout = NULL; /* ??? function parameter ??? */
 	LDAPMessage *res;
 	int rc;
 	conn_data *conn = (conn_data *)lua_touserdata (L, lua_upvalueindex (1));
@@ -402,7 +390,7 @@ static int result_message (lua_State *L) {
 	/*int res_code = (int)lua_tonumber (L, lua_upvalueindex (3));*/
 
 	luaL_argcheck (L, conn->ld, 1, LUALDAP_PREFIX"LDAP connection is closed");
-	rc = ldap_result (conn->ld, msgid, LDAP_MSG_ONE, get_timeout_param (L, 1, &timeout), &res);
+	rc = ldap_result (conn->ld, msgid, LDAP_MSG_ONE, timeout, &res);
 	if (rc == 0)
 		return faildirect (L, LUALDAP_PREFIX"result timeout expired");
 	else if (rc < 0) {
@@ -702,14 +690,15 @@ static void search_close (lua_State *L, search_data *search) {
 static int next_message (lua_State *L) {
 	search_data *search = getsearch (L);
 	conn_data *conn;
-	struct timeval timeout;
+	struct timeval *timeout = NULL; /* ??? function parameter ??? */
 	LDAPMessage *res;
 	int rc;
 	int ret;
 
 	lua_rawgeti (L, LUA_REGISTRYINDEX, search->conn);
 	conn = (conn_data *)lua_touserdata (L, -1); /* get connection */
-	rc = ldap_result (conn->ld, search->msgid, LDAP_MSG_ONE, get_timeout_param (L, 1, &timeout), &res);
+
+	rc = ldap_result (conn->ld, search->msgid, LDAP_MSG_ONE, timeout, &res);
 	if (rc == 0)
 		return faildirect (L, LUALDAP_PREFIX"result timeout expired");
 	else if (rc == -1)
@@ -813,6 +802,20 @@ static int get_attrs_param (lua_State *L, char *attrs[]) {
 		if (table2strarray (L, lua_gettop (L), attrs, LUALDAP_MAX_ATTRS))
 			return 0;
 	return 1;
+}
+
+
+/*
+** Fill in the struct timeval, according to the timeout parameter.
+*/
+static struct timeval *get_timeout_param (lua_State *L, int idx, struct timeval *st) {
+	double t = numbertabparam (L, idx, "timeout", 0);
+	st->tv_sec = (long)t;
+	st->tv_usec = (long)(1000000 * (t - st->tv_sec));
+	if (st->tv_sec == 0 && st->tv_usec == 0)
+		return NULL;
+	else
+		return st;
 }
 
 
