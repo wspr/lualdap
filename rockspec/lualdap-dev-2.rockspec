@@ -42,7 +42,7 @@ build = {
                 lualdap = {
                     libdirs = { '$(LDAP_LIBDIR)' },
                     incdirs = { '$(LDAP_INCDIR)' },
-                    libraries = { 'ldap' },
+                    libraries = { 'ldap', 'lber' },
                 },
             },
         },
