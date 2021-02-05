@@ -5,13 +5,6 @@ CONFIG= ./config
 
 include $(CONFIG)
 
-ifneq ($(filter check,$(MAKECMDGOALS)),)
-include tests/test.env
-LDAP_VARS=LDAP_URI LDAP_BASE_DN LDAP_BIND_DN LDAP_BIND_PASSWORD LDAP_TEST_DN LDAP_TEST_PASSWORD
-$(foreach var,$(LDAP_VARS),$(if $(value $(var)),$(info $(var): $(value $(var))),$(error $(var) required when running tests)))
-LDAP_HOST= $(shell echo "$(LDAP_URI)" | sed -r 's,^.*://([^:/]+).*$$,\1,')
-endif
-
 CFLAGS_WARN := -pedantic -Wall -W -Waggregate-return -Wcast-align -Wmissing-prototypes -Wnested-externs -Wshadow -Wwrite-strings
 
 override CPPFLAGS := -DLUA_C89_NUMBERS $(CPPFLAGS)
@@ -61,7 +54,7 @@ smoke:
 	@LUA_CPATH="./src/?.so" $(LUA) tests/smoke.lua
 
 check: $(REPORT_DIR)
-	env $(foreach var,$(LDAP_VARS) LDAP_HOST,$(var)=$($(var))) busted $(BUSTEDFLAGS) tests/test.lua
+	. tests/test.env && busted $(BUSTEDFLAGS) tests/test.lua
 ifdef COVERAGE
 	luacov
 	mv luacov.*.out $(REPORT_DIR)
