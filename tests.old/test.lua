@@ -1,21 +1,19 @@
-#!/usr/bin/env lua5.1
+#!/usr/bin/env lua
 ---------------------------------------------------------------------
 -- LuaLDAP test file.
 -- This test will create a copy of an existing entry on the
 -- directory to work on.  This new entry will be modified,
 -- renamed and deleted at the end.
 --
--- See Copyright Notice in license.html
--- $Id: test.lua,v 1.15 2006-07-24 01:36:51 tomas Exp $
+-- See Copyright Notice in license.md
 ---------------------------------------------------------------------
 
---
-DN_PAT = "^([^,=]+)%=([^,]+)%,?(.*)$"
 
+--[=[
 ---------------------------------------------------------------------
 -- Print attributes.
 ---------------------------------------------------------------------
-function print_attrs (dn, attrs)
+local function print_attrs (dn, attrs)
 	if not dn then
 		io.write ("nil\n")
 		return
@@ -36,11 +34,12 @@ function print_attrs (dn, attrs)
 		io.write ("\n")
 	end
 end
+--]=]
 
 ---------------------------------------------------------------------
 -- clone a table.
 ---------------------------------------------------------------------
-function clone (tab)
+local function clone (tab)
 	local new = {}
 	for i, v in pairs (tab) do
 		new[i] = v
@@ -52,7 +51,7 @@ end
 ---------------------------------------------------------------------
 -- checks for a value and throw an error if it is not the expected.
 ---------------------------------------------------------------------
-function assert2 (expected, value, msg)
+local function assert2 (expected, value, msg)
 	if not msg then
 		msg = ''
 	else
@@ -68,14 +67,14 @@ end
 ---------------------------------------------------------------------
 -- object test.
 ---------------------------------------------------------------------
-function test_object (obj, objmethods)
+local function test_object (obj, objmethods)
 	-- checking object type.
 	assert2 ("userdata", type(obj), "incorrect object type")
 	-- trying to get metatable.
 	assert2 ("LuaLDAP: you're not allowed to get this metatable",
 		getmetatable(obj), "error permitting access to object's metatable")
 	-- trying to set metatable.
-	assert2 (false, pcall (setmetatable, ENV, {}))
+	assert2 (false, pcall (setmetatable, obj, {}))
 	-- checking existence of object's methods.
 	for i = 1, #objmethods do
 		local method = obj[objmethods[i]]
@@ -85,17 +84,30 @@ function test_object (obj, objmethods)
 	return obj
 end
 
-CONN_OK = function (obj, err)
+local function CONN_OK (obj, err)
 	if obj == nil then
 		error (err, 2)
 	end
 	return test_object (obj, { "close", "add", "compare", "delete", "modify", "rename", "search", })
 end
 
+local DN_PAT = "^([^,=]+)%=([^,]+)%,?(.*)$"
+local HOSTNAME
+local BASE
+local WHO
+local BIND_DN
+local PASSWORD
+local LD
+local CLOSED_LD
+local DN
+local ENTRY
+local NEW
+local NEW_DN
+
 ---------------------------------------------------------------------
 -- basic checking test.
 ---------------------------------------------------------------------
-function basic_test ()
+local function basic_test ()
 	local ld = CONN_OK (lualdap.open_simple (HOSTNAME, BIND_DN, PASSWORD))
 	assert2 (1, ld:close(), "couldn't close connection")
 	-- trying to close without a connection.
@@ -127,7 +139,7 @@ end
 ---------------------------------------------------------------------
 -- checks return value which should be a function AND also its return value.
 ---------------------------------------------------------------------
-function check_future (ret, method, ...)
+local function check_future (ret, method, ...)
 	local ok, f = pcall (method, ...)
 	assert (ok, f)
 	assert2 ("function", type(f))
@@ -139,7 +151,7 @@ end
 ---------------------------------------------------------------------
 -- checking compare operation.
 ---------------------------------------------------------------------
-function compare_test ()
+local function compare_test ()
 	local _,_,rdn_name,rdn_value = string.find (BASE, DN_PAT)
 	assert (type(rdn_name) == "string", "could not extract RDN name")
 	assert (type(rdn_value) == "string", "could not extract RDN value")
@@ -161,7 +173,7 @@ end
 ---------------------------------------------------------------------
 -- checking basic search operation.
 ---------------------------------------------------------------------
-function search_test_1 ()
+local function search_test_1 ()
 	local _,_,rdn = string.find (WHO, "^([^,]+)%,.*$")
 	local iter = LD:search {
 		base = BASE,
@@ -194,7 +206,7 @@ end
 ---------------------------------------------------------------------
 -- checking add operation.
 ---------------------------------------------------------------------
-function add_test ()
+local function add_test ()
 	-- clone an entry.
 	NEW = clone (ENTRY)
 	local _,_,rdn_name, rdn_value, parent_dn = string.find (DN, DN_PAT)
@@ -218,7 +230,7 @@ end
 ---------------------------------------------------------------------
 -- checking modify operation.
 ---------------------------------------------------------------------
-function modify_test ()
+local function modify_test ()
 	-- modifying without connection.
 	assert2 (false, pcall (LD.modify, nil, NEW_DN, {}))
 	-- modifying with a closed connection.
@@ -243,7 +255,7 @@ end
 
 
 ---------------------------------------------------------------------
-function count (tab)
+local function count (tab)
 	local counter = 0
 	for dn, entry in LD:search (tab) do
 		counter = counter + 1
@@ -255,7 +267,7 @@ end
 ---------------------------------------------------------------------
 -- checking advanced search operation.
 ---------------------------------------------------------------------
-function search_test_2 ()
+local function search_test_2 ()
 	local _,_,rdn = string.find (WHO, "^([^,]+)%,.*$")
 	local iter = LD:search {
 		base = BASE,
@@ -312,7 +324,7 @@ end
 ---------------------------------------------------------------------
 -- checking rename operation.
 ---------------------------------------------------------------------
-function rename_test ()
+local function rename_test ()
 	local _,_, rdn_name, rdn_value, parent_dn = string.find (NEW_DN, DN_PAT)
 	local new_rdn = rdn_name..'='..rdn_value..'_'
 	local new_dn = string.format ("%s,%s", new_rdn, parent_dn)
@@ -336,7 +348,7 @@ end
 ---------------------------------------------------------------------
 -- checking delete operation.
 ---------------------------------------------------------------------
-function delete_test ()
+local function delete_test ()
 	-- trying to delete with a closed connection.
 	assert2 (false, pcall (LD.delete, CLOSED_LD, NEW_DN))
 	-- trying to delete with an invalid connection.
@@ -355,13 +367,13 @@ end
 ---------------------------------------------------------------------
 -- checking close operation.
 ---------------------------------------------------------------------
-function close_test ()
+local function close_test ()
 	assert (LD:close () == 1, "couldn't close connection")
 end
 
 
 ---------------------------------------------------------------------
-tests = {
+local tests = {
 	{ "basic checking", basic_test },
 	{ "checking compare operation", compare_test },
 	{ "checking basic search operation", search_test_1 },
@@ -388,7 +400,7 @@ WHO = arg[3]
 BIND_DN = arg[4]
 PASSWORD = arg[5]
 
-require"lualdap"
+lualdap = require"lualdap"
 assert (type(lualdap)=="table", "couldn't load LDAP library")
 
 for i = 1, #tests do

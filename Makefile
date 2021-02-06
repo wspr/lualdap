@@ -54,6 +54,7 @@ clean:
 luacheck:
 	luacheck --codes --std min tests/smoke.lua --ignore 113/lualdap
 	luacheck --codes --std max+busted --max-line-length 160 -a -u tests/test.lua --ignore 431
+	luacheck --std min --config tests.old/.luacheckrc tests.old/test.lua
 
 smoke:
 	@echo SMOKE with $(LUA)
