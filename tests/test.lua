@@ -77,6 +77,7 @@ assert:register("assertion", "is_calleable", is_calleable, "assertion.is_calleab
 --
 local DN_PAT = "^([^,=]+)%=([^,]+)%,?(.*)$"
 
+--[=[
 ---------------------------------------------------------------------
 -- Print attributes.
 ---------------------------------------------------------------------
@@ -101,6 +102,7 @@ local function print_attrs (dn, attrs)
 		io.write ("\n")
 	end
 end
+]=]
 
 ---------------------------------------------------------------------
 -- clone a table.
@@ -148,7 +150,7 @@ local function test_object (obj, objmethods, pattern)
 	return obj
 end
 
-local CONN_OK = function (obj, err)
+local function CONN_OK (obj, err)
 	if obj == nil then
 		error (err, 2)
 	end
