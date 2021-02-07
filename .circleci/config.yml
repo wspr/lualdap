@@ -41,7 +41,6 @@ jobs:
         type: string
     docker:
     - image: circleci/python
-    - image: docker.io/openshift/openldap-2441-centos7@sha256:b5619d4de8efec7973dbd280eb2cc462ebeb8ae6e457acef4b743b7374dd600d
     steps:
     - checkout
     - run:
@@ -50,6 +49,9 @@ jobs:
           sudo apt -y update
           sudo apt -y install libldap2-dev
           sudo apt -y install ldap-utils netcat
+          sudo apt -y install slapd
+          sudo apt -y install apparmor-utils
+          sudo aa-disable slapd
     - run:
         name: Install hererocks
         command: |
@@ -75,11 +77,11 @@ jobs:
           source bed/bin/activate
           make luacheck
     - run:
-        name: "Wait for OpenLDAP to spin up"
-        command: while ! nc -z localhost 389 ; do sleep 1 ; done
-    - run:
         name: Prime and test LDAP DB
-        command: ./tests/openshift/setup.sh
+        command: ./tests/slapd/setup.sh
+    - run:
+        name: "Wait for OpenLDAP to spin up"
+        command: while ! nc -z localhost 3899 ; do sleep 1 ; done
     - run:
         name: "Test with coverage"
         command: |
