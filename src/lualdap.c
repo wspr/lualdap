@@ -894,7 +894,6 @@ static void lualdap_createmeta_conn (lua_State *L) {
 	lua_setfield (L, -2, "__metatable");
 
 	lua_pop(L, 1);  /* pop metatable */
-	return;
 }
 
 
@@ -917,7 +916,6 @@ static void lualdap_createmeta_search (lua_State *L) {
 	lua_setfield (L, -2, "__metatable");
 
 	lua_pop(L, 1);  /* pop metatable */
-	return;
 }
 
 
