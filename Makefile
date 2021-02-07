@@ -52,7 +52,7 @@ clean:
 	$(RM) -r $(OBJS) src/$(LIBNAME) src/*.gcda src/*.gcno src/*.gcov luacov.*.out $(REPORT_DIR)
 
 luacheck:
-	luacheck --codes --std min tests/smoke.lua --ignore 113/lualdap
+	luacheck --std min tests/smoke.lua
 	luacheck --std max+busted --config tests/.luacheckrc tests/test.lua
 	luacheck --std min --config tests.old/.luacheckrc tests.old/test.lua
 
