@@ -20,7 +20,16 @@
 #include <lua.h>
 #include <lauxlib.h>
 
-#include "compat-5.3.h"
+#if LUA_VERSION_NUM < 502
+#define lua_rawlen(L,i)		lua_objlen(L, (i))
+#define luaL_setmetatable(L,n)	\
+	(luaL_getmetatable(L, n), lua_setmetatable(L, -2))
+#define luaL_newlibtable(L,l)	\
+	lua_createtable(L, 0, sizeof(l)/sizeof((l)[0]) - 1)
+#define luaL_newlib(L,l)	\
+	(luaL_newlibtable(L, (l)), luaL_setfuncs(L, (l), 0))
+#define luaL_setfuncs(L,l,n)		luaL_register(L, NULL, (l))
+#endif
 
 
 #ifdef WINLDAPAPI

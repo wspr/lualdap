@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 * `bind_simple` returns the connection (instead of `true`)
+* the Lua compatibility (5.1 to 5.4) is done without the compat-5.3 module
 
 ## [1.2.6] - 2021-03-17
 ### Added
