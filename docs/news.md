@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.6] - 2021-03-17
 ### Added
 * Lua 5.4 compatibility
 * Updated documentation is available on <https://lualdap.github.io/lualdap/>
@@ -76,7 +77,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.0-alpha - 2003-12-10
 
-[Unreleased]: https://github.com/lualdap/lualdap/compare/v1.2.5...HEAD
+[Unreleased]: https://github.com/lualdap/lualdap/compare/v1.2.6...HEAD
+[1.2.6]: https://github.com/lualdap/lualdap/compare/v1.2.5...v1.2.6
 [1.2.5]: https://github.com/lualdap/lualdap/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/lualdap/lualdap/compare/v1.2.4-rc1...v1.2.4
 [1.2.4-rc1]: https://github.com/lualdap/lualdap/compare/v1.2.3...v1.2.4-rc1
