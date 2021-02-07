@@ -26,3 +26,6 @@ debian/debhelper-build-stamp
 debian/files
 debian/lua_versions
 
+tests/slapd/slapd-config/
+tests/slapd/slapd-data/
+

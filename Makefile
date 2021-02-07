@@ -54,7 +54,7 @@ smoke:
 	@LUA_CPATH="./src/?.so" $(LUA) tests/smoke.lua
 
 check: $(REPORT_DIR)
-	. tests/test.env && busted $(BUSTEDFLAGS) tests/test.lua
+	. tests/openshift/test.env && busted $(BUSTEDFLAGS) tests/test.lua
 ifdef COVERAGE
 	luacov
 	mv luacov.*.out $(REPORT_DIR)
