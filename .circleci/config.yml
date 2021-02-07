@@ -79,7 +79,7 @@ jobs:
         command: while ! nc -z localhost 389 ; do sleep 1 ; done
     - run:
         name: Prime and test LDAP DB
-        command: ./tests/setup.sh
+        command: ./tests/openshift/setup.sh
     - run:
         name: "Test with coverage"
         command: |

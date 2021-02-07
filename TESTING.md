@@ -72,14 +72,14 @@ This is a port of the original test suite on the top of the framework [busted](h
 `busted` could generate a JUnit XML output which allows nice integration with CI.
 
 Previously, the parameters were passed by argument of the command line,
-now there are passed with environment variables (see `tests/test.env`)
+now there are passed with environment variables (see `test.env`)
 
 The following command:
 
 ```
-$ tests/setup.sh   # one time, after starting the docker openshift
+$ tests/openshift/setup.sh   # one time, after starting the docker openshift
 
-$ . tests/test.env && tests/test.lua
+$ . tests/openshift/test.env && tests/test.lua
 ```
 
 gives:
