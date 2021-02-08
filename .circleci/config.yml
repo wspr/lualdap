@@ -79,13 +79,13 @@ jobs:
         command: while ! nc -z localhost 389 ; do sleep 1 ; done
     - run:
         name: Prime and test LDAP DB
-        command: ./tests/openshift/setup.sh
+        command: |
+          make setup_slapd
     - run:
         name: "Test with coverage"
         command: |
           source bed/bin/activate
-          export LUA_CPATH="./src/?.so"
-          make COVERAGE=1 JUNITXML=1 check
+          make coverage
     - codecov/upload:
         file: "*.gcov"
         flags: default

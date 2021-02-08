@@ -5,6 +5,8 @@ CONFIG= ./config
 
 include $(CONFIG)
 
+SLAPD := openshift
+
 CFLAGS_WARN := -pedantic -Wall -W -Waggregate-return -Wcast-align -Wmissing-prototypes -Wnested-externs -Wshadow -Wwrite-strings
 
 override CPPFLAGS := -DLUA_C89_NUMBERS $(CPPFLAGS)
@@ -18,11 +20,6 @@ endif
 
 ifdef COVERAGE
 override CFLAGS := $(CFLAGS) -O0 -g --coverage
-override BUSTEDFLAGS := $(BUSTEDFLAGS) --coverage
-endif
-
-ifdef JUNITXML
-override BUSTEDFLAGS := $(BUSTEDFLAGS) --output=junit -Xoutput $(REPORT_DIR)/report.xml
 endif
 
 OBJS= src/lualdap.o
@@ -53,12 +50,16 @@ smoke:
 	@echo SMOKE with $(LUA)
 	@LUA_CPATH="./src/?.so" $(LUA) tests/smoke.lua
 
-check: $(REPORT_DIR)
-	. tests/openshift/test.env && busted $(BUSTEDFLAGS) tests/test.lua
-ifdef COVERAGE
+setup_slapd:
+	./tests/$(SLAPD)/setup.sh
+
+check:
+	. tests/$(SLAPD)/test.env && LUA_CPATH="./src/?.so" busted tests/test.lua
+
+coverage: $(REPORT_DIR)
+	. tests/$(SLAPD)/test.env && LUA_CPATH="./src/?.so" busted --coverage --output=junit -Xoutput $(REPORT_DIR)/report.xml tests/test.lua
 	luacov
 	mv luacov.*.out $(REPORT_DIR)
-endif
 
 $(REPORT_DIR):
 	mkdir -p $@
