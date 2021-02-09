@@ -20,5 +20,5 @@ It enables a Lua program to:
 
 # Links
 
-The homepage is at <https://lualdap.github.io/lualdap>,
+The homepage with documentation is at <https://lualdap.github.io/lualdap>,
 and the sources are hosted at <https://github.com/lualdap/lualdap>.

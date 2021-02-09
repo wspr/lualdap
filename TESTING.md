@@ -16,7 +16,7 @@ You could install/setup `slapd` (the OpenLDAP server) in your environment,
 or run a Docker image containing `slapd`
 
 [openshift/openldap-2441-centos7](https://hub.docker.com/r/openshift/openldap-2441-centos7)
-is an on-the-shelf image which was built from source available on <https://github.com/openshift/openldap>.
+is an image on-the-shelf which was built from source available on <https://github.com/openshift/openldap>.
 
 ```
 # docker pull openshift/openldap-2441-centos7

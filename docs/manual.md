@@ -58,12 +58,8 @@ LuaLDAP provides a single way to connect to an LDAP server:
 
 Initializes a session with an LDAP server.
 
-This function requires a hostname, accordingly to the
-[C LDAP API](https://www.ietf.org/proceedings/51/I-D/draft-ietf-ldapext-ldap-c-api-05.txt)
-definition (_"hostname contains a space-separated list of hostnames
-or dotted strings representing the IP address of hosts running an LDAP server to connect to.
-Each hostname in the list MAY include a port number which is separated
-from the host itself with a colon (:) character."_).
+The argument `hostname` may contain a blank-separated list of hosts
+to try to connect to, and each host may optionally by of the form host:port.
 
 The argument `who` should be the [distinguished name](manual.md#distinguished-names)
 of the entry that has the password to be checked against
@@ -77,7 +73,10 @@ In case of error it returns `nil` followed by an error string.
 
 ### `lualdap.initialize (uri)`
 
-Open and initialize a connection to a server (without binding).
+Open and initialize a connection to a server (without binding, see method `bind_simple`).
+
+The `uri` parameter may be a comma- or whitespace-separated list of
+URIs containing only the schema, the host, and the port fields.
 
 Returns a connection object if the operation was successful.
 
