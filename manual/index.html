@@ -150,12 +150,8 @@ in <a href="./#related-documentation">Related documentation</a> section.</p>
 <p>LuaLDAP provides a single way to connect to an LDAP server:</p>
 <h3 id="lualdapopen_simple-hostname-who-password-usetls"><code>lualdap.open_simple (hostname, who, password, usetls)</code></h3>
 <p>Initializes a session with an LDAP server.</p>
-<p>This function requires a hostname, accordingly to the
-<a href="https://www.ietf.org/proceedings/51/I-D/draft-ietf-ldapext-ldap-c-api-05.txt">C LDAP API</a>
-definition (<em>"hostname contains a space-separated list of hostnames
-or dotted strings representing the IP address of hosts running an LDAP server to connect to.
-Each hostname in the list MAY include a port number which is separated
-from the host itself with a colon (:) character."</em>).</p>
+<p>The argument <code>hostname</code> may contain a blank-separated list of hosts
+to try to connect to, and each host may optionally by of the form host:port.</p>
 <p>The argument <code>who</code> should be the <a href="./#distinguished-names">distinguished name</a>
 of the entry that has the password to be checked against
 the third argument, <code>password</code>.</p>
@@ -164,7 +160,9 @@ if Transport Layer Security (TLS) should be used.</p>
 <p>Returns a connection object if the operation was successful.
 In case of error it returns <code>nil</code> followed by an error string.</p>
 <h3 id="lualdapinitialize-uri"><code>lualdap.initialize (uri)</code></h3>
-<p>Open and initialize a connection to a server (without binding).</p>
+<p>Open and initialize a connection to a server (without binding, see method <code>bind_simple</code>).</p>
+<p>The <code>uri</code> parameter may be a comma- or whitespace-separated list of
+URIs containing only the schema, the host, and the port fields.</p>
 <p>Returns a connection object if the operation was successful.</p>
 <h1 id="connection-objects">Connection objects</h1>
 <p>A connection object offers methods which implement LDAP operations.
