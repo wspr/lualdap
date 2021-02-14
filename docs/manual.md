@@ -125,6 +125,9 @@ Adds a new entry to the directory with the given attributes and values.
 
 Bind to the directory.
 
+Returns the connection object if the operation was successful.
+In case of error it returns `nil` followed by an error string.
+
 ### `conn:close ()`
 
 Closes the connection `conn`.

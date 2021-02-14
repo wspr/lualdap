@@ -429,7 +429,7 @@ static int lualdap_close (lua_State *L) {
 ** @param #1 LDAP connection.
 ** @param #2 String with username.
 ** @param #3 String with password.
-** @return Boolean.
+** @return LDAP connection on success.
 */
 static int lualdap_bind_simple (lua_State *L) {
 	conn_data *conn = getconnection (L);
@@ -447,7 +447,7 @@ static int lualdap_bind_simple (lua_State *L) {
 	if (err != LDAP_SUCCESS)
 		return faildirect (L, ldap_err2string (err));
 
-	lua_pushboolean (L, 1);
+	lua_pushvalue (L, 1);
 	return 1;
 }
 

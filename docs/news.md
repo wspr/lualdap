@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * a new method `open` which deprecates `initialize`
 
+### Changed
+* `bind_simple` returns the connection (instead of `true`)
+
 ## [1.2.6] - 2021-03-17
 ### Added
 * Lua 5.4 compatibility

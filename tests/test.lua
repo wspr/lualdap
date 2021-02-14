@@ -163,7 +163,7 @@ end
 describe("basics", function()
 	local ld = CONN_OK (lualdap.initialize (URI))
 	it("can connect and bind", function()
-		assert.is_true(ld:bind_simple (BIND_DN, PASSWORD))
+		assert.is_same(ld, ld:bind_simple (BIND_DN, PASSWORD))
 	end)
 	it("can close connection", function()
 		assert.is_same(1, ld:close())
