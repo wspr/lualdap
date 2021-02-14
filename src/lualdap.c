@@ -952,6 +952,59 @@ static int lualdap_initialize (lua_State *L) {
 #endif
 
 /*
+** Open a connection to a server.
+** @param #1 String with hostname.
+** @param #2 Boolean indicating if TLS must be used.
+** @return #1 Userdata with connection structure.
+*/
+static int lualdap_open (lua_State *L) {
+	ldap_pchar_t host = (ldap_pchar_t) luaL_checkstring (L, 1);
+	int use_tls = lua_toboolean (L, 2);
+	conn_data *conn = (conn_data *)lua_newuserdata (L, sizeof(conn_data));
+#if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
+	int err;
+#endif
+
+	/* Initialize */
+	luaL_setmetatable (L, LUALDAP_CONNECTION_METATABLE);
+	conn->version = 0;
+#if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
+	if (strstr(host, "://") != NULL) {
+		err = ldap_initialize(&conn->ld, host);
+	} else {
+		lua_getglobal (L, "string");
+		lua_getfield (L, -1, "gsub");
+		if (!lua_isfunction (L, -1))
+			return faildirect (L, LUALDAP_PREFIX"string.gsub broken");
+		lua_pushvalue (L, 1); /* host */
+		lua_pushstring (L, "(%S+)");
+		lua_pushstring (L, "ldap://%1");
+		lua_call (L, 3, 1); /* string.gsub(host, '(%S+)', 'ldap://%1') */
+		/* ldap_initialize handles a whitespace-separated list of hostnames */
+		err = ldap_initialize(&conn->ld, lua_tostring (L, -1));
+		lua_pop(L, 2);
+	}
+	if (err != LDAP_SUCCESS)
+#else
+	conn->ld = ldap_init (host, LDAP_PORT);
+	if (conn->ld == NULL)
+#endif
+		return faildirect(L,LUALDAP_PREFIX"Error connecting to server");
+	/* Set protocol version */
+	conn->version = LDAP_VERSION3;
+	if (ldap_set_option (conn->ld, LDAP_OPT_PROTOCOL_VERSION, &conn->version)
+		!= LDAP_OPT_SUCCESS)
+		return faildirect(L, LUALDAP_PREFIX"Error setting LDAP version");
+	/* Use TLS */
+	if (use_tls) {
+		int rc = ldap_start_tls_s (conn->ld, NULL, NULL);
+		if (rc != LDAP_SUCCESS)
+			return faildirect (L, ldap_err2string (rc));
+	}
+	return 1;
+}
+
+/*
 ** Open and initialize a connection to a server.
 ** @param #1 String with hostname.
 ** @param #2 String with username.
@@ -1041,6 +1094,7 @@ int luaopen_lualdap (lua_State *L) {
 #if !defined(WINLDAP)
 		{"initialize", lualdap_initialize},
 #endif
+		{"open", lualdap_open},
 		{"open_simple", lualdap_open_simple},
 		/* placeholders */
 		{"_COPYRIGHT", NULL},

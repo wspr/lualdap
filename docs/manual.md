@@ -71,7 +71,20 @@ if Transport Layer Security (TLS) should be used.
 Returns a connection object if the operation was successful.
 In case of error it returns `nil` followed by an error string.
 
-### `lualdap.initialize (uri)`
+### `lualdap.open (hostname, usetls)`
+
+Open and initialize a connection to a LDAP server (without binding, see method `bind_simple`).
+
+The argument `hostname` may contain a blank-separated list of hosts
+to try to connect to, and each host may optionally by of the form host:port.
+
+The optional argument `usetls` is a Boolean flag indicating
+if Transport Layer Security (TLS) should be used.
+
+Returns a connection object if the operation was successful.
+In case of error it returns `nil` followed by an error string.
+
+### `lualdap.initialize (uri)` **DEPRECATED** in favor of `open`
 
 Open and initialize a connection to a server (without binding, see method `bind_simple`).
 

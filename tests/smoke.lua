@@ -15,6 +15,7 @@ end
 if not os.getenv('OS') then
     assert(type(m.initialize) == 'function')
 end
+assert(type(m.open) == 'function')
 assert(type(m.open_simple) == 'function')
 
 print'PASS'
