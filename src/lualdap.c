@@ -442,7 +442,7 @@ static int lualdap_bind_simple (lua_State *L) {
 	err = ldap_sasl_bind_s (conn->ld, who, LDAP_SASL_SIMPLE, cred, NULL, NULL, NULL);
 	ber_bvfree(cred);
 #else
-	err = ldap_simple_bind_s (conn->ld, who, password);
+	err = ldap_bind_s (conn->ld, who, password, LDAP_AUTH_SIMPLE);
 #endif
 	if (err != LDAP_SUCCESS)
 		return faildirect (L, ldap_err2string (err));
@@ -871,9 +871,7 @@ static void lualdap_createmeta_conn (lua_State *L) {
 	};
 	static const luaL_Reg methods[] = {
 		{"close", lualdap_close},
-#if !defined(WINLDAP)
 		{"bind_simple", lualdap_bind_simple},
-#endif
 		{"add", lualdap_add},
 		{"compare", lualdap_compare},
 		{"delete", lualdap_delete},
@@ -963,14 +961,13 @@ static int lualdap_initialize (lua_State *L) {
 */
 static int lualdap_open_simple (lua_State *L) {
 	ldap_pchar_t host = (ldap_pchar_t) luaL_checkstring (L, 1);
-	ldap_pchar_t who = (ldap_pchar_t) luaL_optstring (L, 2, NULL);
+	ldap_pchar_t who = (ldap_pchar_t) luaL_optstring (L, 2, "");
 	const char *password = luaL_optstring (L, 3, "");
 	int use_tls = lua_toboolean (L, 4);
 	conn_data *conn = (conn_data *)lua_newuserdata (L, sizeof(conn_data));
 #if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
-	struct berval *cred = NULL;
-#endif
 	int err;
+#endif
 
 	/* Initialize */
 	luaL_setmetatable (L, LUALDAP_CONNECTION_METATABLE);
@@ -1009,16 +1006,16 @@ static int lualdap_open_simple (lua_State *L) {
 			return faildirect (L, ldap_err2string (rc));
 	}
 	/* Bind to a server */
-#if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
-	cred = ber_bvstrdup(password);
-	err = ldap_sasl_bind_s (conn->ld, who, LDAP_SASL_SIMPLE, cred, NULL, NULL, NULL);
-	ber_bvfree(cred);
-#else
-	err = ldap_bind_s (conn->ld, who, password, LDAP_AUTH_SIMPLE);
-#endif
-	if (err != LDAP_SUCCESS)
-		return faildirect (L, ldap_err2string (err));
-
+	lua_pushcfunction (L, lualdap_bind_simple);
+	lua_pushvalue (L, -2); /* connection */
+	lua_pushstring (L, who);
+	lua_pushstring (L, password);
+	lua_call (L, 3, 2);
+	if (lua_isnil (L, -2)) {
+		return 2; /* Pass through in case of errors */
+	} else {
+		lua_pop (L, 2); /* Discard return values from lualdap_bind_simple */
+	}
 	return 1;
 }
 
