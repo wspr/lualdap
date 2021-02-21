@@ -27,15 +27,14 @@ openshift/openldap-2441-centos7   latest              9bae1ab605d5        2 year
 ```
 
 ```
-# docker run -d --name openldap -p 389:389 -p 636:636 openshift/openldap-2441-centos7
+# docker run -d --rm --name openldap -p 389:389 -p 636:636 openshift/openldap-2441-centos7
 3d557fc1136fffe91def479ee5cd445da1b974a4809520795a79e1836e62f23e
 
 # docker ps
 CONTAINER ID        IMAGE                             COMMAND                    CREATED              STATUS              PORTS                                        NAMES
 3d557fc1136f        openshift/openldap-2441-centos7   "/usr/local/bin/run-..."   About a minute ago   Up 56 seconds       0.0.0.0:389->389/tcp, 0.0.0.0:636->636/tcp   openldap
 
-# docker stop openldap
-# docker container rm openldap
+# docker kill openldap
 ```
 
 ## tests.old/test.lua
