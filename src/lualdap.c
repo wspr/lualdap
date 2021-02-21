@@ -981,9 +981,17 @@ static int lualdap_open_simple (lua_State *L) {
 	if (strstr(host, "://") != NULL) {
 		err = ldap_initialize(&conn->ld, host);
 	} else {
-		const char *host_with_schema = lua_pushfstring(L, "ldap://%s", host);
-		err = ldap_initialize(&conn->ld, host_with_schema);
-		lua_pop(L, 1);
+		lua_getglobal (L, "string");
+		lua_getfield (L, -1, "gsub");
+		if (!lua_isfunction (L, -1))
+			return faildirect (L, LUALDAP_PREFIX"string.gsub broken");
+		lua_pushvalue (L, 1); /* host */
+		lua_pushstring (L, "(%S+)");
+		lua_pushstring (L, "ldap://%1");
+		lua_call (L, 3, 1); /* string.gsub(host, '(%S+)', 'ldap://%1') */
+		/* ldap_initialize handles a whitespace-separated list of hostnames */
+		err = ldap_initialize(&conn->ld, lua_tostring (L, -1));
+		lua_pop(L, 2);
 	}
 	if (err != LDAP_SUCCESS)
 #else

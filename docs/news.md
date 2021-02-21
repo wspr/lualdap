@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 * Fix case in Makefile when install directory does not exist
 * WinLDAP variant
+* issue #10: space-separated list of hostnames doesn't work anymore
 
 ### Removed
 * Dropped the claim that we support OpenLDAP older than 2.3, which was not true since 3597ac91334dbaa912db391f5e9fd7a15a643686
