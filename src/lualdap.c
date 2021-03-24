@@ -1017,47 +1017,18 @@ static int lualdap_open_simple (lua_State *L) {
 	ldap_pchar_t who = (ldap_pchar_t) luaL_optstring (L, 2, "");
 	const char *password = luaL_optstring (L, 3, "");
 	int use_tls = lua_toboolean (L, 4);
-	conn_data *conn = (conn_data *)lua_newuserdata (L, sizeof(conn_data));
-#if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
-	int err;
-#endif
 
-	/* Initialize */
-	luaL_setmetatable (L, LUALDAP_CONNECTION_METATABLE);
-	conn->version = 0;
-#if defined(LDAP_API_FEATURE_X_OPENLDAP) && LDAP_API_FEATURE_X_OPENLDAP >= 20300
-	if (strstr(host, "://") != NULL) {
-		err = ldap_initialize(&conn->ld, host);
+	/* Open */
+	lua_pushcfunction (L, lualdap_open);
+	lua_pushstring (L, host);
+	lua_pushboolean (L, use_tls);
+	lua_call (L, 2, 2);
+	if (lua_isnil (L, -2)) {
+		return 2; /* nil, msg */
 	} else {
-		lua_getglobal (L, "string");
-		lua_getfield (L, -1, "gsub");
-		if (!lua_isfunction (L, -1))
-			return faildirect (L, LUALDAP_PREFIX"string.gsub broken");
-		lua_pushvalue (L, 1); /* host */
-		lua_pushstring (L, "(%S+)");
-		lua_pushstring (L, "ldap://%1");
-		lua_call (L, 3, 1); /* string.gsub(host, '(%S+)', 'ldap://%1') */
-		/* ldap_initialize handles a whitespace-separated list of hostnames */
-		err = ldap_initialize(&conn->ld, lua_tostring (L, -1));
-		lua_pop(L, 2);
+		lua_pop (L, 1); /* keep only the userdata (LDAP connection) */
 	}
-	if (err != LDAP_SUCCESS)
-#else
-	conn->ld = ldap_init (host, LDAP_PORT);
-	if (conn->ld == NULL)
-#endif
-		return faildirect(L,LUALDAP_PREFIX"Error connecting to server");
-	/* Set protocol version */
-	conn->version = LDAP_VERSION3;
-	if (ldap_set_option (conn->ld, LDAP_OPT_PROTOCOL_VERSION, &conn->version)
-		!= LDAP_OPT_SUCCESS)
-		return faildirect(L, LUALDAP_PREFIX"Error setting LDAP version");
-	/* Use TLS */
-	if (use_tls) {
-		int rc = ldap_start_tls_s (conn->ld, NULL, NULL);
-		if (rc != LDAP_SUCCESS)
-			return faildirect (L, ldap_err2string (rc));
-	}
+
 	/* Bind to a server */
 	lua_pushcfunction (L, lualdap_bind_simple);
 	lua_pushvalue (L, -2); /* connection */
