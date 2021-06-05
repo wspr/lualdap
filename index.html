@@ -9,81 +9,73 @@
         
         <link rel="shortcut icon" href="img/favicon.ico">
         <title>LuaLDAP</title>
-        <link href="css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="css/bootstrap.min.css" rel="stylesheet">
         <link href="css/font-awesome.min.css" rel="stylesheet">
         <link href="css/base.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
 
         <script src="js/jquery-1.10.2.min.js" defer></script>
-        <script src="js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="js/bootstrap.min.js" defer></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
         <script>hljs.initHighlightingOnLoad();</script> 
     </head>
 
     <body class="homepage">
-
-        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
             <div class="container">
-
-                <!-- Collapsed navigation -->
-                <div class="navbar-header">
-                    <!-- Expander button -->
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href=".">LuaLDAP</a>
-                </div>
+                <a class="navbar-brand" href=".">LuaLDAP</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
                 <!-- Expanded navigation -->
-                <div class="navbar-collapse collapse">
+                <div id="navbar-collapse" class="navbar-collapse collapse">
                         <!-- Main navigation -->
                         <ul class="nav navbar-nav">
-                            <li class="active">
-                                <a href=".">Home</a>
+                            <li class="navitem active">
+                                <a href="." class="nav-link">Home</a>
                             </li>
-                            <li >
-                                <a href="manual/">Manual</a>
+                            <li class="navitem">
+                                <a href="manual/" class="nav-link">Manual</a>
                             </li>
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     
-<li >
-    <a href="news/">News</a>
+<li>
+    <a href="news/" class="dropdown-item">News</a>
 </li>
                                     
-<li >
-    <a href="contributors/">Contributors</a>
+<li>
+    <a href="contributors/" class="dropdown-item">Contributors</a>
 </li>
                                     
-<li >
-    <a href="license/">License</a>
+<li>
+    <a href="license/" class="dropdown-item">License</a>
 </li>
                                 </ul>
                             </li>
                         </ul>
 
-                    <ul class="nav navbar-nav navbar-right">
-                        <li>
-                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
                                 <i class="fa fa-search"></i> Search
                             </a>
                         </li>
-                            <li class="disabled">
-                                <a rel="next" >
+                            <li class="nav-item">
+                                <a rel="prev" class="nav-link disabled">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
-                            <li >
-                                <a rel="prev" href="manual/">
+                            <li class="nav-item">
+                                <a rel="next" href="manual/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
-                            <li>
-                                <a href="https://github.com/lualdap/lualdap/edit/master/docs/index.md"><i class="fa fa-github"></i> Edit on GitHub</a>
+                            <li class="nav-item">
+                                <a href="https://github.com/lualdap/lualdap/edit/master/docs/index.md" class="nav-link"><i class="fa fa-github"></i> Edit on GitHub</a>
                             </li>
                     </ul>
                 </div>
@@ -91,15 +83,41 @@
         </div>
 
         <div class="container">
-                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
-    <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#overview">Overview</a></li>
-        <li class="main "><a href="#status">Status</a></li>
-        <li class="main "><a href="#download">Download</a></li>
-        <li class="main "><a href="#installation">Installation</a></li>
-    </ul>
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-light">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="2"><a href="#overview" class="nav-link">Overview</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#status" class="nav-link">Status</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#download" class="nav-link">Download</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#installation" class="nav-link">Installation</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
 </div></div>
-                <div class="col-md-9" role="main">
+                    <div class="col-md-9" role="main">
 
 <h2 id="overview">Overview</h2>
 <p>LuaLDAP is a simple interface from Lua to an LDAP client, in fact
@@ -117,12 +135,12 @@ or <a href="https://docs.microsoft.com/en-us/windows/win32/adsi/about-adsi">ADSI
 <p>The sources are hosted on <a href="https://github.com/lualdap/lualdap">Github</a>.</p>
 <h2 id="installation">Installation</h2>
 <p>LuaLDAP is available via <a href="https://luarocks.org/">LuaRocks</a>:</p>
-<pre><code class="sh">luarocks install lualdap
+<pre><code class="language-sh">luarocks install lualdap
 </code></pre>
-
 <p>Debian packages are available on <a href="https://packages.debian.org/buster/lua-ldap">Debian</a>
 or <a href="https://packages.ubuntu.com/focal/lua-ldap">Ubuntu</a>.</p>
 <p>RPM packages are available on <a href="https://src.fedoraproject.org/rpms/lua-ldap">Fedora</a>.</p></div>
+            </div>
         </div>
 
         <footer class="col-md-12">
@@ -136,21 +154,21 @@ or <a href="https://packages.ubuntu.com/focal/lua-ldap">Ubuntu</a>.</p>
         <script src="js/base.js" defer></script>
         <script src="search/main.js" defer></script>
 
-        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
-    <div class="modal-dialog">
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
             </div>
             <div class="modal-body">
                 <p>
                     From here you can search these documents. Enter
                     your search terms below.
                 </p>
-                <form role="form">
+                <form>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
                     </div>
                 </form>
                 <div id="mkdocs-search-results"></div>
@@ -159,12 +177,12 @@ or <a href="https://packages.ubuntu.com/focal/lua-ldap">Ubuntu</a>.</p>
             </div>
         </div>
     </div>
-</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
             </div>
             <div class="modal-body">
               <table class="table">
@@ -204,6 +222,6 @@ or <a href="https://packages.ubuntu.com/focal/lua-ldap">Ubuntu</a>.</p>
 </html>
 
 <!--
-MkDocs version : 1.0.4
-Build Date UTC : 2021-03-17 08:49:19
+MkDocs version : 1.1.2
+Build Date UTC : 2021-06-05 13:40:21.973650+00:00
 -->
