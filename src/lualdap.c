@@ -1061,7 +1061,7 @@ static void set_info (lua_State *L) {
 	lua_setfield (L, -2, "_COPYRIGHT");
 	lua_pushliteral (L, "LuaLDAP is a simple interface from Lua to an LDAP client");
 	lua_setfield (L, -2, "_DESCRIPTION");
-	lua_pushliteral (L, "LuaLDAP 1.2.6");
+	lua_pushliteral (L, "LuaLDAP 1.3.0");
 	lua_setfield (L, -2, "_VERSION");
 }
 
