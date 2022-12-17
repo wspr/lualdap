@@ -21,13 +21,13 @@ The sources are hosted on [Github](https://github.com/lualdap/lualdap).
 
 ## Installation
 
-LuaLDAP is available via [LuaRocks](https://luarocks.org/):
+LuaLDAP is available via [LuaRocks](https://luarocks.org/modules/fperrad/lualdap):
 
 ```sh
 luarocks install lualdap
 ```
 
-Debian packages are available on [Debian](https://packages.debian.org/buster/lua-ldap)
-or [Ubuntu](https://packages.ubuntu.com/focal/lua-ldap).
+Debian packages are available on [Debian](https://packages.debian.org/sid/lua-ldap)
+or [Ubuntu](https://packages.ubuntu.com/jammy/lua-ldap).
 
 RPM packages are available on [Fedora](https://src.fedoraproject.org/rpms/lua-ldap).
